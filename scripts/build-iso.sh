@@ -86,6 +86,13 @@ install_joys_binaries() {
             "$ROOTFS_DIR/root/apitest.exe"
         ok "apitest.exe als Test-Fixture installiert"
     fi
+    # filetest.exe als Test-Fixture (PHASE 8: Dateisystem + Registry).
+    if [ -f "$ROOT_DIR/compatibility/joys-win/tests/binaries/filetest.exe" ]; then
+        install -m 0644 -D \
+            "$ROOT_DIR/compatibility/joys-win/tests/binaries/filetest.exe" \
+            "$ROOTFS_DIR/root/filetest.exe"
+        ok "filetest.exe als Test-Fixture installiert"
+    fi
 }
 install_joys_binaries
 

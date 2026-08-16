@@ -19,6 +19,11 @@
 //! (siehe runtime/abi.rs), die Argumente von Win64 (RCX/RDX/R8/R9) auf das
 //! SysV-ABI der Rust-Impls umsetzen.
 
+#[cfg(unix)]
+use crate::api::filesystem::{
+    cstr_a, win_to_linux_path, CREATE_ALWAYS, CREATE_NEW, GENERIC_WRITE, OPEN_EXISTING,
+    TRUNCATE_EXISTING,
+};
 use crate::loader::imports::Import;
 use crate::runtime::ExeError;
 
@@ -84,6 +89,7 @@ pub unsafe extern "C" fn joys_win_write_file_impl(
     let fd = match h_file {
         h if h == i64::from(STD_OUTPUT_HANDLE) => 1,
         h if h == i64::from(STD_ERROR_HANDLE) => 2,
+        h if (0..=i32::MAX as i64).contains(&h) => h as i32, // Datei-fd
         _ => return 0,
     };
     let len = n_bytes as usize;
@@ -418,6 +424,251 @@ pub extern "C" fn joys_win_get_command_line_a_impl() -> *const u8 {
     EMPTY.as_ptr()
 }
 
+/// Impl von `GetCurrentDirectoryA`.
+///
+/// # Safety
+/// `lp_buffer` muss auf `n_buffer_length` gültige Bytes zeigen (Win32-ABI).
+#[cfg(unix)]
+#[no_mangle]
+pub unsafe extern "C" fn joys_win_get_current_directory_a_impl(
+    n_buffer_length: u32,
+    lp_buffer: *mut u8,
+) -> u32 {
+    if lp_buffer.is_null() || n_buffer_length == 0 {
+        return 0;
+    }
+    let mut buf = vec![0u8; n_buffer_length as usize];
+    let r = libc::getcwd(buf.as_mut_ptr() as *mut libc::c_char, buf.len());
+    if r.is_null() {
+        return 0;
+    }
+    let len = buf.iter().position(|&b| b == 0).unwrap_or(buf.len());
+    std::ptr::copy_nonoverlapping(buf.as_ptr(), lp_buffer, len);
+    len as u32
+}
+
+/// Fallback für Nicht-Unix-Ziele.
+///
+/// # Safety
+/// Wie Unix-Variante.
+#[cfg(not(unix))]
+#[no_mangle]
+pub unsafe extern "C" fn joys_win_get_current_directory_a_impl(
+    _n_buffer_length: u32,
+    _lp_buffer: *mut u8,
+) -> u32 {
+    0
+}
+
+/// Impl von `SetCurrentDirectoryA`.
+///
+/// # Safety
+/// `lp_path_name` muss auf eine NUL-terminierte Zeichenkette zeigen.
+#[cfg(unix)]
+#[no_mangle]
+pub unsafe extern "C" fn joys_win_set_current_directory_a_impl(lp_path_name: *const u8) -> i32 {
+    let Some(path) = cstr_a(lp_path_name) else {
+        return 0;
+    };
+    let linux = win_to_linux_path(&path);
+    let c = std::ffi::CString::new(linux).unwrap_or_default();
+    if libc::chdir(c.as_ptr()) == 0 {
+        1
+    } else {
+        0
+    }
+}
+
+/// Fallback für Nicht-Unix-Ziele.
+///
+/// # Safety
+/// Wie Unix-Variante.
+#[cfg(not(unix))]
+#[no_mangle]
+pub unsafe extern "C" fn joys_win_set_current_directory_a_impl(_lp_path_name: *const u8) -> i32 {
+    0
+}
+
+/// Impl von `CreateFileA`.
+///
+/// # Safety
+/// `lp_file_name` muss auf eine NUL-terminierte Zeichenkette zeigen
+/// (Win32-ABI).
+#[cfg(unix)]
+#[allow(clippy::too_many_arguments)]
+#[no_mangle]
+pub unsafe extern "C" fn joys_win_create_file_a_impl(
+    lp_file_name: *const u8,
+    dw_desired_access: u32,
+    _dw_share_mode: u32,
+    _lp_security_attributes: *mut core::ffi::c_void,
+    dw_creation_disposition: u32,
+    _dw_flags_and_attributes: u32,
+    _h_template_file: i64,
+) -> i64 {
+    let Some(path) = cstr_a(lp_file_name) else {
+        return -1;
+    };
+    let linux = win_to_linux_path(&path);
+    let c = std::ffi::CString::new(linux).unwrap_or_default();
+
+    let access = if dw_desired_access & GENERIC_WRITE != 0 {
+        libc::O_RDWR
+    } else {
+        libc::O_RDONLY
+    };
+    let (flags, mode) = match dw_creation_disposition {
+        CREATE_NEW => (libc::O_CREAT | libc::O_EXCL, 0o666),
+        CREATE_ALWAYS => (libc::O_CREAT | libc::O_TRUNC, 0o666),
+        OPEN_EXISTING => (0, 0),
+        TRUNCATE_EXISTING => (libc::O_TRUNC, 0),
+        _ => (0, 0),
+    };
+    let fd = libc::open(c.as_ptr(), flags | access, mode as libc::c_uint);
+    if fd < 0 {
+        -1
+    } else {
+        i64::from(fd)
+    }
+}
+
+/// Fallback für Nicht-Unix-Ziele.
+///
+/// # Safety
+/// Wie Unix-Variante.
+#[cfg(not(unix))]
+#[allow(clippy::too_many_arguments)]
+#[no_mangle]
+pub unsafe extern "C" fn joys_win_create_file_a_impl(
+    _lp_file_name: *const u8,
+    _dw_desired_access: u32,
+    _dw_share_mode: u32,
+    _lp_security_attributes: *mut core::ffi::c_void,
+    _dw_creation_disposition: u32,
+    _dw_flags_and_attributes: u32,
+    _h_template_file: i64,
+) -> i64 {
+    -1
+}
+
+/// Impl von `ReadFile`.
+///
+/// # Safety
+/// `lp_buffer` muss auf `n_bytes_to_read` gültige Bytes zeigen (Win32-ABI).
+#[allow(clippy::too_many_arguments)]
+#[cfg(unix)]
+#[no_mangle]
+pub unsafe extern "C" fn joys_win_read_file_impl(
+    h_file: i64,
+    lp_buffer: *mut u8,
+    n_bytes_to_read: u32,
+    bytes_read_out: *mut u32,
+    _overlapped: *mut core::ffi::c_void,
+) -> i32 {
+    let fd = match h_file {
+        h if h == i64::from(STD_INPUT_HANDLE) => 0,
+        h if (0..=i32::MAX as i64).contains(&h) => h as i32,
+        _ => return 0,
+    };
+    if lp_buffer.is_null() || n_bytes_to_read == 0 {
+        if !bytes_read_out.is_null() {
+            *bytes_read_out = 0;
+        }
+        return 0;
+    }
+    let buf = core::slice::from_raw_parts_mut(lp_buffer, n_bytes_to_read as usize);
+    let n = libc::read(fd, buf.as_mut_ptr() as *mut libc::c_void, buf.len());
+    if n < 0 {
+        return 0;
+    }
+    if !bytes_read_out.is_null() {
+        *bytes_read_out = n as u32;
+    }
+    1
+}
+
+/// Fallback für Nicht-Unix-Ziele.
+///
+/// # Safety
+/// Wie Unix-Variante.
+#[allow(clippy::too_many_arguments)]
+#[cfg(not(unix))]
+#[no_mangle]
+pub unsafe extern "C" fn joys_win_read_file_impl(
+    _h_file: i64,
+    _lp_buffer: *mut u8,
+    _n_bytes_to_read: u32,
+    bytes_read_out: *mut u32,
+    _overlapped: *mut core::ffi::c_void,
+) -> i32 {
+    if !bytes_read_out.is_null() {
+        *bytes_read_out = 0;
+    }
+    0
+}
+
+/// Impl von `GetFileSize`.
+///
+/// # Safety
+/// `lp_file_size_high` muss gültig oder NULL sein (Win32-ABI).
+#[cfg(unix)]
+#[no_mangle]
+pub unsafe extern "C" fn joys_win_get_file_size_impl(
+    h_file: i64,
+    _lp_file_size_high: *mut u32,
+) -> u32 {
+    if h_file < 0 {
+        return u32::MAX; // INVALID_FILE_SIZE
+    }
+    let mut st: libc::stat = std::mem::zeroed();
+    if libc::fstat(h_file as i32, &mut st) != 0 {
+        return u32::MAX;
+    }
+    st.st_size as u32
+}
+
+/// Fallback für Nicht-Unix-Ziele.
+///
+/// # Safety
+/// Wie Unix-Variante.
+#[cfg(not(unix))]
+#[no_mangle]
+pub unsafe extern "C" fn joys_win_get_file_size_impl(
+    _h_file: i64,
+    _lp_file_size_high: *mut u32,
+) -> u32 {
+    u32::MAX
+}
+
+/// Impl von `CloseHandle`.
+///
+/// # Safety
+/// Wird aus dem Win64-ABI-Stub aufgerufen.
+#[cfg(unix)]
+#[no_mangle]
+pub unsafe extern "C" fn joys_win_close_handle_impl(h_object: i64) -> i32 {
+    if h_object == i64::from(STD_INPUT_HANDLE)
+        || h_object == i64::from(STD_OUTPUT_HANDLE)
+        || h_object == i64::from(STD_ERROR_HANDLE)
+    {
+        return 1; // Pseudo-Handles nicht schließen (wie Windows)
+    }
+    if (0..=i32::MAX as i64).contains(&h_object) && libc::close(h_object as i32) == 0 {
+        return 1;
+    }
+    0
+}
+
+/// Fallback für Nicht-Unix-Ziele.
+///
+/// # Safety
+/// Wie Unix-Variante.
+#[cfg(not(unix))]
+#[no_mangle]
+pub unsafe extern "C" fn joys_win_close_handle_impl(_h_object: i64) -> i32 {
+    0
+}
+
 // ---------------------------------------------------------------------------
 // Import-Auflösung
 // ---------------------------------------------------------------------------
@@ -439,6 +690,12 @@ pub fn resolve(imp: &Import) -> Result<usize, ExeError> {
     let stub = match name {
         "GetStdHandle" => fn_addr(joys_win_get_std_handle_stub),
         "WriteFile" => fn_addr(joys_win_write_file_stub),
+        "ReadFile" => fn_addr(joys_win_read_file_stub),
+        "CreateFileA" => fn_addr(joys_win_create_file_a_stub),
+        "GetCurrentDirectoryA" => fn_addr(joys_win_get_current_directory_a_stub),
+        "SetCurrentDirectoryA" => fn_addr(joys_win_set_current_directory_a_stub),
+        "GetFileSize" => fn_addr(joys_win_get_file_size_stub),
+        "CloseHandle" => fn_addr(joys_win_close_handle_stub),
         "ExitProcess" => fn_addr(joys_win_exit_process_stub),
         "Sleep" => fn_addr(joys_win_sleep_stub),
         "GetTickCount" => fn_addr(joys_win_get_tick_count_stub),
@@ -472,6 +729,12 @@ extern "C" {
     // Win64-ABI-Stubs aus runtime/abi.rs.
     fn joys_win_get_std_handle_stub();
     fn joys_win_write_file_stub();
+    fn joys_win_read_file_stub();
+    fn joys_win_create_file_a_stub();
+    fn joys_win_get_current_directory_a_stub();
+    fn joys_win_set_current_directory_a_stub();
+    fn joys_win_get_file_size_stub();
+    fn joys_win_close_handle_stub();
     fn joys_win_exit_process_stub();
     fn joys_win_sleep_stub();
     fn joys_win_get_tick_count_stub();
@@ -506,6 +769,12 @@ macro_rules! stub_const {
 stub_const!(
     joys_win_get_std_handle_stub,
     joys_win_write_file_stub,
+    joys_win_read_file_stub,
+    joys_win_create_file_a_stub,
+    joys_win_get_current_directory_a_stub,
+    joys_win_set_current_directory_a_stub,
+    joys_win_get_file_size_stub,
+    joys_win_close_handle_stub,
     joys_win_exit_process_stub,
     joys_win_sleep_stub,
     joys_win_get_tick_count_stub,

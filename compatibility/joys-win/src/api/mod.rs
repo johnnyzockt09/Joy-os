@@ -1,7 +1,9 @@
 //! API-Modul von joys-win: Builtin-Implementierungen der Windows-DLLs.
 //!
-//! Status: kernel32 mit einer minimalen, echt funktionierenden Basis
-//! (GetStdHandle, WriteFile, ExitProcess). Alles andere ist bewusst NICHT
-//! implementiert - Aufrufe scheitern mit einer klaren Meldung.
+//! Status: kernel32 (Konsolen-/Prozess-/Speicher-/Datei-Grundfunktionen) und
+//! advapi32 (Registry) mit echten, auf Linux abgebildeten Implementierungen.
+//! Nicht implementierte APIs scheitern mit einer klaren Meldung.
 
+pub mod advapi32;
+pub mod filesystem;
 pub mod kernel32;

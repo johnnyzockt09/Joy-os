@@ -60,6 +60,7 @@ unsafe fn resolve_imports(img: &PeImage, mapped: &MappedImage) -> Result<(), Exe
         for (i, imp) in d.imports.iter().enumerate() {
             let target = match dll.as_str() {
                 "kernel32.dll" => crate::api::kernel32::resolve(imp)?,
+                "advapi32.dll" => crate::api::advapi32::resolve(imp)?,
                 other => return Err(ExeError::UnimplementedApi(other.into(), import_name(imp))),
             };
             let iat_rva = d.first_thunk + i as u32 * ps;

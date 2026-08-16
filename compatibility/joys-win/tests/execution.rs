@@ -20,6 +20,11 @@ fn apitest_exe_path() -> &'static str {
     concat!(env!("CARGO_MANIFEST_DIR"), "/tests/binaries/apitest.exe")
 }
 
+#[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+fn filetest_exe_path() -> &'static str {
+    concat!(env!("CARGO_MANIFEST_DIR"), "/tests/binaries/filetest.exe")
+}
+
 #[test]
 #[cfg(all(target_os = "linux", target_arch = "x86_64"))]
 fn analyzes_hello_exe() {
@@ -98,4 +103,48 @@ fn runs_apitest_exe() {
         stdout.contains("valloc=") && stdout.contains("free=1"),
         "VirtualAlloc/VirtualFree fehlt: {stdout}"
     );
+}
+
+#[test]
+#[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+fn runs_filetest_exe() {
+    // In einem Temp-Verzeichnis ausführen, damit die Datei sauber entsteht.
+    let dir = std::env::temp_dir().join(format!("joys-filetest-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).expect("temp dir");
+    let out = Command::new(env!("CARGO_BIN_EXE_joys-win"))
+        .current_dir(&dir)
+        .env("HOME", &dir)
+        .args(["run", filetest_exe_path()])
+        .output()
+        .expect("joys-win run starten");
+    assert!(
+        out.status.success(),
+        "status: {:?}, stderr: {}",
+        out.status.code(),
+        String::from_utf8_lossy(&out.stderr)
+    );
+    let stdout = String::from_utf8_lossy(&out.stdout);
+    assert!(stdout.contains("cwd="), "cwd fehlt: {stdout}");
+    assert!(
+        stdout.contains("write_ok=1 written=12 size=12"),
+        "Datei schreiben fehlt: {stdout}"
+    );
+    assert!(
+        stdout.contains("content=Hello file!"),
+        "Datei lesen fehlt: {stdout}"
+    );
+    assert!(
+        stdout.contains("reg_create=0 set=0 get=0 value=registry works"),
+        "Registry fehlt: {stdout}"
+    );
+    // Tatsächlich geschriebene Datei + Registry-Datei prüfen.
+    let file_content = std::fs::read_to_string(dir.join("joys_test.txt")).unwrap_or_default();
+    assert_eq!(file_content, "Hello file!\n");
+    let reg_file = dir.join(".joys/windows/registry/HKCU/Software/Joys/FileTest/Greeting@1");
+    assert!(
+        reg_file.exists(),
+        "Registry-Datei fehlt: {}",
+        reg_file.display()
+    );
+    let _ = std::fs::remove_dir_all(&dir);
 }

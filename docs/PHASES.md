@@ -36,7 +36,15 @@ gilt nur dann als abgeschlossen, wenn ihre Tests grün sind und der Abschluss in
   lstrlenA …), bewiesen via apitest.exe in der Live-ISO
   (siehe `docs/PHASE_7_REPORT.md`)
 
-## Phase 8 – Filesystem + Registry
+## Phase 8 – Filesystem + Registry ✅
+- Windows-Dateisystem-API (CreateFileA/ReadFile/WriteFile/CloseHandle/
+  GetFileSize/GetCurrentDirectoryA/SetCurrentDirectoryA) mit Pfad-Abbildung
+  (relativ → Linux-CWD, `C:\` → `~/.joys/windows/`)
+- Joys-eigene Registry unter `~/.joys/windows/registry/` (advapi32:
+  RegCreateKeyA/RegOpenKeyExA/RegSetValueExA/RegQueryValueExA/RegCloseKey)
+- Bewiesen via filetest.exe in der Live-ISO
+  (siehe `docs/PHASE_8_REPORT.md`)
+
 ## Phase 9 – User32
 ## Phase 10 – GDI32
 ## Phase 11 – Networking (ws2_32)
