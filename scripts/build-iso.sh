@@ -79,6 +79,13 @@ install_joys_binaries() {
             "$ROOTFS_DIR/root/hello.exe"
         ok "hello.exe als Test-Fixture installiert"
     fi
+    # apitest.exe als Test-Fixture (PHASE 7: erweiterte kernel32-Abdeckung).
+    if [ -f "$ROOT_DIR/compatibility/joys-win/tests/binaries/apitest.exe" ]; then
+        install -m 0644 -D \
+            "$ROOT_DIR/compatibility/joys-win/tests/binaries/apitest.exe" \
+            "$ROOTFS_DIR/root/apitest.exe"
+        ok "apitest.exe als Test-Fixture installiert"
+    fi
 }
 install_joys_binaries
 

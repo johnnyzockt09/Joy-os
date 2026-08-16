@@ -30,8 +30,12 @@ gilt nur dann als abgeschlossen, wenn ihre Tests grün sind und der Abschluss in
   nativ und in der gebooteten Joys-Live-ISO
   (siehe `docs/PHASE_6_REPORT.md`)
 
-## Phase 7 – Kernel32
-- Fortsetzung: weitere kernel32-Funktionen über die Builtin-Architektur
+## Phase 7 – Kernel32 ✅
+- 14 kernel32-Funktionen real auf Linux abgebildet (Sleep, GetTickCount,
+  Prozess/Thread-ID, GetLastError, VirtualAlloc/Free, GetSystemInfo,
+  lstrlenA …), bewiesen via apitest.exe in der Live-ISO
+  (siehe `docs/PHASE_7_REPORT.md`)
+
 ## Phase 8 – Filesystem + Registry
 ## Phase 9 – User32
 ## Phase 10 – GDI32

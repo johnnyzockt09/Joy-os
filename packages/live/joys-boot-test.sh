@@ -9,5 +9,7 @@ uname -a
 /usr/bin/joys-win /root/hello.exe
 echo "--- joys-win run hello.exe ---"
 /usr/bin/joys-win run /root/hello.exe
+echo "--- joys-win run apitest.exe ---"
+/usr/bin/joys-win run /root/apitest.exe
 echo "--- ende ---"
 echo "=== JOYS BOOT TEST ENDE ==="
