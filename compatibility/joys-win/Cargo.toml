@@ -11,6 +11,7 @@ description = "Joys OS - Windows-Kompatibilitätsruntime ohne Wine (PE-Loader, W
 name = "joys_win"
 
 [dependencies]
+libc = "0.2"
 
 [dev-dependencies]
 

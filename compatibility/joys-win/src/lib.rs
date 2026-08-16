@@ -17,12 +17,13 @@
 //! Linux Kernel
 //! ```
 //!
-//! Status: PHASE 0/5 - der PE/COFF-Loader (loader/) ist als erster echter
-//! Baustein implementiert und getestet. Alle anderen Module sind deklariert,
-//! aber leer und ausdrücklich als TODO markiert - keine Fake-Implementierung.
+//! Status: PHASE 0/5/6 - der PE/COFF-Loader (loader/) ist als erster echter
+//! Baustein implementiert und getestet. Das Ausführen einfacher PE32+-Programme
+//! (PHASE 6) ist über runtime/ + api/ begonnen (x86_64 Linux). Alle anderen
+//! Module sind deklariert, aber leer und ausdrücklich als TODO markiert -
+//! keine Fake-Implementierung.
 
-#![forbid(unsafe_code)]
-
+pub mod api;
 pub mod dll;
 pub mod loader;
 pub mod registry;

@@ -72,6 +72,13 @@ install_joys_binaries() {
     else
         warn "joys-win nicht gebaut (cargo build --release). Wird übersprungen."
     fi
+    # hello.exe als Test-Fixture ins Live-System (für PHASE-6-Beweis in QEMU).
+    if [ -f "$ROOT_DIR/compatibility/joys-win/tests/binaries/hello.exe" ]; then
+        install -m 0644 -D \
+            "$ROOT_DIR/compatibility/joys-win/tests/binaries/hello.exe" \
+            "$ROOTFS_DIR/root/hello.exe"
+        ok "hello.exe als Test-Fixture installiert"
+    fi
 }
 install_joys_binaries
 

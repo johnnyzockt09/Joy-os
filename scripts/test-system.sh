@@ -67,6 +67,7 @@ expect "JOYS BOOT TEST" "Boot-Selbsttest startet"
 expect "JOYS BOOT TEST ENDE" "Boot-Selbsttest beendet"
 expect "Joys Core" "joys-core läuft im Live-System"
 expect "joys-win <datei" "joys-win läuft im Live-System"
+expect "Hello from Windows!" "hello.exe läuft via joys-win im Live-System"
 expect "x86_64 GNU/Linux" "Linux-Kernel (x86_64) läuft"
 expect "login:" "Login-Prompt erreicht"
 

@@ -9,6 +9,11 @@
 # Rust
 **/*.rs.bk
 
+# C/obj-Artifakte
+*.obj
+*.o
+*.pdb
+
 # WSL / local mounts
 .venv/
 venv/

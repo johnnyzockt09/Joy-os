@@ -145,6 +145,11 @@ impl PeImage {
         &self.dos
     }
 
+    /// Rohdaten der Datei.
+    pub fn data(&self) -> &[u8] {
+        &self.data
+    }
+
     /// Optional-Header (PE32 oder PE32+).
     pub fn optional_header(&self) -> &OptionalHeader {
         &self.optional

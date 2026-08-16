@@ -6,4 +6,8 @@ echo "=== JOYS BOOT TEST ==="
 uname -a
 /usr/bin/joys-core
 /usr/bin/joys-win
+/usr/bin/joys-win /root/hello.exe
+echo "--- joys-win run hello.exe ---"
+/usr/bin/joys-win run /root/hello.exe
+echo "--- ende ---"
 echo "=== JOYS BOOT TEST ENDE ==="

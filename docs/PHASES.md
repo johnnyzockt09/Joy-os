@@ -21,14 +21,17 @@ gilt nur dann als abgeschlossen, wenn ihre Tests grün sind und der Abschluss in
 ## Phase 4 – Joys Application Manager
 - Linux-Apps, Windows-Apps, AppImages, Flatpaks
 
-## Phase 5 – Joys-Win PE Loader
+## Phase 5 – Joys-Win PE Loader ✅
 - .exe erkennen, PE-Header lesen, Architektur erkennen, Sections laden,
-  Entry-Point erkennen
+  Entry-Point erkennen (Tests gegen echte Windows-Systemdateien)
 
-## Phase 6 – erste .exe ausführen
-- `hello.exe` → gibt `Hello from Windows!` aus (kein Wine)
+## Phase 6 – erste .exe ausführen ✅
+- `hello.exe` → gibt `Hello from Windows!` aus (kein Wine) – **gemessen**
+  nativ und in der gebooteten Joys-Live-ISO
+  (siehe `docs/PHASE_6_REPORT.md`)
 
 ## Phase 7 – Kernel32
+- Fortsetzung: weitere kernel32-Funktionen über die Builtin-Architektur
 ## Phase 8 – Filesystem + Registry
 ## Phase 9 – User32
 ## Phase 10 – GDI32

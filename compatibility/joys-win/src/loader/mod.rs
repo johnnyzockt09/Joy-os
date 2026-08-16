@@ -13,7 +13,9 @@
 //!
 //! Status: Header-, Section-, Import-, Export- und Relocation-Parsing sind
 //! implementiert und getestet. Das eigentliche *Mapping* des Images in den
-//! Speicher und das Ausführen folgt in PHASE 6.
+//! Speicher und das Ausführen folgt in runtime/ (PHASE 6).
+
+#![forbid(unsafe_code)]
 
 pub mod entrypoint;
 pub mod exports;

@@ -5,6 +5,8 @@ pub mod error;
 pub mod image;
 pub mod reader;
 
+pub use image::PeImage;
+
 /// 'MZ' – DOS-Signatur.
 pub const DOS_MAGIC: u16 = 0x5a4d;
 /// 'PE\0\0' – PE-Signatur.
