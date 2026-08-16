@@ -1,0 +1,18 @@
+* text=auto
+
+*.sh   text eol=lf
+*.rs   text eol=lf
+*.rs.bk text eol=lf
+*.toml text eol=lf
+*.yml  text eol=lf
+*.yaml text eol=lf
+*.md   text eol=lf
+*.sh   eol=lf
+
+# Binärdateien nie umwandeln
+*.iso  binary
+*.img  binary
+*.qcow2 binary
+*.png  binary
+*.jpg  binary
+*.ico  binary

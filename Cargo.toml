@@ -1,0 +1,27 @@
+[workspace]
+resolver = "2"
+members = [
+    "core/joys-core",
+    "compatibility/joys-win",
+]
+default-members = [
+    "core/joys-core",
+    "compatibility/joys-win",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/JoysOS/Joys"
+authors = ["Joys OS Developers"]
+
+[workspace.dependencies]
+
+[profile.release]
+lto = true
+codegen-units = 1
+strip = true
+
+[profile.dev]
+opt-level = 1

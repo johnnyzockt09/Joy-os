@@ -1,0 +1,68 @@
+name: Build ISO
+
+on:
+  push:
+    branches: [main, master]
+    tags: ['v*']
+  workflow_dispatch:
+
+jobs:
+  build-iso:
+    name: Build Joys ISO
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            debootstrap xorriso mtools grub-pc-bin grub-efi-amd64-bin \
+            qemu-utils dosfstools qemu-system-x86 ovmf \
+            curl git build-essential
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build Joys binaries (release)
+        run: cargo build --workspace --release
+
+      - name: Run Rust tests
+        run: cargo test --workspace
+
+      - name: Build root filesystem
+        run: sudo PROFILE=minimal ./scripts/build-rootfs.sh build/rootfs-minimal
+
+      - name: Build kernel + initramfs
+        run: sudo PROFILE=minimal ./scripts/build-kernel.sh build/rootfs-minimal
+
+      - name: Build ISO
+        run: sudo PROFILE=minimal ./scripts/build-iso.sh
+
+      - name: Test ISO
+        run: ./scripts/test-iso.sh dist/Joys-*-x86_64.iso
+
+      - name: Generate checksums
+        run: |
+          cd dist
+          sha256sum Joys-*-x86_64.iso > SHA256SUMS
+          cat SHA256SUMS
+          ls -lh
+
+      - name: Upload ISO artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Joys-ISO
+          path: |
+            dist/Joys-*-x86_64.iso
+            dist/SHA256SUMS
+          if-no-files-found: error
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/Joys-*-x86_64.iso
+            dist/SHA256SUMS
+          generate_release_notes: true

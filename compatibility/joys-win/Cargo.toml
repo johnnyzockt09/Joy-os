@@ -1,0 +1,19 @@
+[package]
+name = "joys-win"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+description = "Joys OS - Windows-Kompatibilitätsruntime ohne Wine (PE-Loader, Win32-API, DLL-System)"
+
+[lib]
+name = "joys_win"
+
+[dependencies]
+
+[dev-dependencies]
+
+[[bin]]
+name = "joys-win"
+path = "src/bin/joys-win.rs"

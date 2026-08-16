@@ -1,0 +1,33 @@
+# Build artifacts
+/target/
+**/target/
+
+# ISO build output
+/dist/
+/build/
+
+# Rust
+**/*.rs.bk
+
+# WSL / local mounts
+.venv/
+venv/
+
+# Editors / OS
+.vscode/
+.idea/
+*.swp
+*.swo
+Thumbs.db
+.DS_Store
+
+# Secrets - never commit these
+*.pem
+*.key
+*.p12
+*.pfx
+.env
+
+# QEMU artifacts
+*.qcow2
+*.img

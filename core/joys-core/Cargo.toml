@@ -1,0 +1,13 @@
+[package]
+name = "joys-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+description = "Joys OS - zentrale System-API (System, Hardware, Prozesse, Dateien)"
+
+[lib]
+name = "joys_core"
+
+[dependencies]
