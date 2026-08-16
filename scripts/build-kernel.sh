@@ -22,9 +22,10 @@ chroot "$TARGET" /bin/bash -c '
     set -e
     export DEBIAN_FRONTEND=noninteractive
     export LANG=C.UTF-8
-    if [ ! -f /etc/resolv.conf ]; then echo "nameserver 1.1.1.1" > /etc/resolv.conf; fi
+    rm -f /etc/resolv.conf
+    echo "nameserver 1.1.1.1" > /etc/resolv.conf
     apt-get update -qq
-    apt-get install -y -qq linux-image-generic initramfs-tools || true
+    apt-get install -y -qq linux-image-generic initramfs-tools casper || true
     update-initramfs -c -k all || true
     # Stabile Pfade für grub.cfg.
     cd /boot

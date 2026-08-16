@@ -18,8 +18,13 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y \
             debootstrap xorriso mtools grub-pc-bin grub-efi-amd64-bin \
-            qemu-utils dosfstools qemu-system-x86 ovmf \
+            qemu-utils dosfstools squashfs-tools \
             curl git build-essential
+
+      # QEMU-Systemtest benötigt zusätzlich qemu + ovmf.
+      - name: Install QEMU test dependencies
+        run: |
+          sudo apt-get install -y qemu-system-x86 ovmf
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
@@ -41,6 +46,12 @@ jobs:
 
       - name: Test ISO
         run: ./scripts/test-iso.sh dist/Joys-*-x86_64.iso
+
+      # Vollständiger Boottest in QEMU (GRUB→Kernel→Live-System→joys-binaries).
+      # Nur bei Tags + manuellem Auslösen, da TCG-Boot mehrere Minuten dauert.
+      - name: System test (QEMU)
+        if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+        run: ./scripts/test-system.sh dist/Joys-*-x86_64.iso
 
       - name: Generate checksums
         run: |

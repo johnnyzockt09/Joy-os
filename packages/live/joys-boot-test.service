@@ -1,0 +1,13 @@
+[Unit]
+Description=Joys Boot Self-Test
+After=systemd-user-sessions.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/joys-boot-test.sh
+StandardOutput=tty
+TTYPath=/dev/ttyS0
+SyslogIdentifier=joys-boot-test
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+# Automatisierter Systemtest: bootet die Joys-ISO in QEMU (UEFI/OVMF) und
+# verifiziert die gesamte Bootkette bis zu den Joys-Binaries im Live-System.
+#
+#   ./scripts/test-system.sh [datei.iso]
+#
+# Prüft:
+#   - GRUB lädt
+#   - Linux-Kernel startet
+#   - casper/Live-System bootet
+#   - Login-Prompt erscheint
+#   - joys-core und joys-win laufen im Live-System (Boot-Selbsttest)
+#
+# Voraussetzungen: qemu-system-x86_64, ovmf.
+# Hinweis: Boot dauert unter TCG (ohne KVM) mehrere Minuten.
+
+set -euo pipefail
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib/common.sh"
+
+ISO="${1:-}"
+if [ -z "$ISO" ]; then
+    ISO="$(ls "$DIST_DIR"/Joys-*-"$ARCH".iso 2>/dev/null | head -n1 || true)"
+fi
+[ -n "$ISO" ] && [ -f "$ISO" ] || die "ISO nicht gefunden (erst ./scripts/build-iso.sh)"
+
+require_cmd qemu-system-x86_64
+
+# OVMF finden.
+OVMF_CODE=""
+for p in \
+    /usr/share/OVMF/OVMF_CODE_4M.fd \
+    /usr/share/OVMF/OVMF_CODE.fd \
+    /usr/share/ovmf/OVMF_CODE.fd \
+    /usr/share/edk2/x64/OVMF_CODE.4m.fd; do
+    if [ -f "$p" ]; then OVMF_CODE="$p"; break; fi
+done
+[ -n "$OVMF_CODE" ] || die "OVMF-Firmware nicht gefunden (apt install ovmf)"
+
+OVMF_VARS="$BUILD_DIR/ovmf-vars-test.fd"
+VARS_SRC="${OVMF_CODE%_CODE*}""_VARS.fd"
+[ -f "$VARS_SRC" ] || VARS_SRC="${OVMF_CODE%_CODE*}""_VARS_4M.fd"
+[ -f "$VARS_SRC" ] || die "OVMF-VARS nicht gefunden"
+cp "$VARS_SRC" "$OVMF_VARS"
+
+BOOTLOG="$BUILD_DIR/system-test.log"
+mkdir -p "$BUILD_DIR"
+rm -f "$BOOTLOG"
+
+log "QEMU-Systemtest startet: $ISO"
+timeout 420 qemu-system-x86_64 \
+    -machine q35,accel=tcg \
+    -m 2048 -smp 2 \
+    -drive "if=pflash,format=raw,readonly=on,file=$OVMF_CODE" \
+    -drive "if=pflash,format=raw,file=$OVMF_VARS" \
+    -cdrom "$ISO" -boot order=d \
+    -display none -serial stdio -no-reboot \
+    > "$BOOTLOG" 2>&1 || true
+
+FAIL=0
+expect() { # expect <marker> <beschreibung>
+    if grep -aq "$1" "$BOOTLOG"; then ok "$2"
+    else warn "TEST FEHLGESCHLAGEN: $2 (fehlt '$1')"; FAIL=1; fi
+}
+
+expect "GNU GRUB" "GRUB-Bootloader lädt"
+expect "JOYS BOOT TEST" "Boot-Selbsttest startet"
+expect "JOYS BOOT TEST ENDE" "Boot-Selbsttest beendet"
+expect "Joys Core" "joys-core läuft im Live-System"
+expect "joys-win <datei" "joys-win läuft im Live-System"
+expect "x86_64 GNU/Linux" "Linux-Kernel (x86_64) läuft"
+expect "login:" "Login-Prompt erreicht"
+
+echo
+if [ "$FAIL" -eq 0 ]; then
+    ok "Systemtest bestanden ($ISO)"
+    exit 0
+else
+    die "Systemtest fehlgeschlagen – Log: $BOOTLOG"
+fi

@@ -7,8 +7,10 @@ gilt nur dann als abgeschlossen, wenn ihre Tests grün sind und der Abschluss in
 ## Phase 0 – Projektgrundlage ✅
 - Git-Repository, Cargo-Workspace, Doku, Lizenz, CI, VERSION
 
-## Phase 1 – Bootfähiges Joys Linux
-- UEFI → GRUB → Linux Kernel → Userspace → Live-ISO
+## Phase 1 – Bootfähiges Joys Linux ✅
+- UEFI → GRUB → Linux Kernel → casper-Live-Userspace → Login-Prompt
+- Reproduzierbar: `./scripts/build-iso.sh` + `./scripts/test-system.sh`
+  (siehe `docs/PHASE_1_REPORT.md`)
 
 ## Phase 2 – Joys Desktop
 - Openbox (oder eigener WM) → Joys Shell → Desktop

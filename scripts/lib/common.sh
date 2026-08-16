@@ -46,3 +46,13 @@ require_root() {
 # ---- Versions-/Umgebungsinfos ----
 joys_version() { echo "$VERSION"; }
 joys_iso_name() { echo "Joys-$VERSION-$ARCH.iso"; }
+
+# Joys-Arch -> Debian-Arch für debootstrap.
+deb_arch() {
+    case "$ARCH" in
+        x86_64)  echo amd64 ;;
+        aarch64) echo arm64 ;;
+        i386)    echo i386 ;;
+        *) die "Unbekannte Architektur für debootstrap: $ARCH" ;;
+    esac
+}
