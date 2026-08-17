@@ -19,7 +19,7 @@ Jede als „✅" markierte Zeile ist durch automatisierte Tests belegt.
 | Netzwerk funktioniert | ✅ | DHCP-IP via systemd-networkd |
 | Shutdown funktioniert | ✅ | `system_powerdown` → Gast fährt herunter |
 | Reboot funktioniert | ⚠️ verdrahtet | `systemctl reboot` im Startmenü; nicht automatisiert getestet |
-| GitHub CI funktioniert | ⚠️ wartet auf Push | Workflows vorhanden, noch nicht auf GitHub gelaufen |
+| GitHub CI funktioniert | ✅ | Rust-Tests (Linux+Windows) + ISO-Build + System-/Desktop-QEMU-Test grün auf github.com/johnnyzockt09/Joy-os |
 | Dokumentation vorhanden | ✅ | `docs/`, `README.md`, `THIRD_PARTY.md` |
 | hello.exe läuft (kein Wine) | ✅ | „Hello from Windows!" nativ + in Live-ISO |
 
@@ -85,7 +85,8 @@ dist/
   Performance) sind **noch nicht implementiert**. Die Architektur dafür
   (loader/runtime/api/dll/registry/filesystem) steht.
 - Reboot ist verdrahtet, aber nicht automatisiert getestet.
-- CI lief noch nicht auf GitHub (kein Remote konfiguriert).
+- CI lief auf GitHub grün (Rust-Tests, ISO-Build, QEMU-System- und
+  Desktop-Test via workflow_dispatch).
 - Desktop „Settings" ist minimal (lxappearance).
 - joy-win unterstützt nur PE32+/x86_64-Linux; 32-bit/andere Plattformen →
   sauberer `UnsupportedPlatform`-Fehler.
