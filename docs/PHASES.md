@@ -18,8 +18,12 @@ gilt nur dann als abgeschlossen, wenn ihre Tests grün sind und der Abschluss in
 - Netzwerk (DHCP) und Shutdown funktionieren; Screenshot-Beweis in QEMU
   (siehe `docs/PHASE_2_REPORT.md`)
 
-## Phase 3 – Joys Core
-- System-API, Hardware-Erkennung, Dienste
+## Phase 3 – Joys Core ✅
+- System-API: system/hardware/processes/files/network/user mit echten
+  Implementierungen (siehe `docs/PHASE_3_9_10_REPORT.md`)
+
+## Phase 4 – Joys Application Manager
+- Grundgerüst offen
 
 ## Phase 4 – Joys Application Manager
 - Linux-Apps, Windows-Apps, AppImages, Flatpaks
@@ -48,8 +52,15 @@ gilt nur dann als abgeschlossen, wenn ihre Tests grün sind und der Abschluss in
 - Bewiesen via filetest.exe in der Live-ISO
   (siehe `docs/PHASE_8_REPORT.md`)
 
-## Phase 9 – User32
-## Phase 10 – GDI32
+## Phase 9 – User32 ✅
+- Fensterklassen, Fenster, Message-Loop (RegisterClassExA/CreateWindowExA/
+  GetMessageA/DispatchMessageA/PostMessageA/…) mit Win64-WndProc-Trampoline
+- Bewiesen via windowtest.exe in der Live-ISO
+
+## Phase 10 – GDI32 ✅
+- Memory-DCs, Bitmaps, SetPixelV/GetPixel (echte Pixel, kein Dummy)
+- Bewiesen via gditest.exe in der Live-ISO
+  (beide: `docs/PHASE_3_9_10_REPORT.md`)
 ## Phase 11 – Networking (ws2_32)
 ## Phase 12 – Audio
 ## Phase 13 – Graphics (Vulkan-Basis)

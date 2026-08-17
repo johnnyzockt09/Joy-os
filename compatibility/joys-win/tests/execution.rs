@@ -25,6 +25,16 @@ fn filetest_exe_path() -> &'static str {
     concat!(env!("CARGO_MANIFEST_DIR"), "/tests/binaries/filetest.exe")
 }
 
+#[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+fn windowtest_exe_path() -> &'static str {
+    concat!(env!("CARGO_MANIFEST_DIR"), "/tests/binaries/windowtest.exe")
+}
+
+#[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+fn gditest_exe_path() -> &'static str {
+    concat!(env!("CARGO_MANIFEST_DIR"), "/tests/binaries/gditest.exe")
+}
+
 #[test]
 #[cfg(all(target_os = "linux", target_arch = "x86_64"))]
 fn analyzes_hello_exe() {
@@ -147,4 +157,51 @@ fn runs_filetest_exe() {
         reg_file.display()
     );
     let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
+#[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+fn runs_windowtest_exe() {
+    // User32: Fensterklasse, Fenster, Message-Loop (PHASE 9).
+    let out = Command::new(env!("CARGO_BIN_EXE_joys-win"))
+        .args(["run", windowtest_exe_path()])
+        .output()
+        .expect("joys-win run starten");
+    assert!(
+        out.status.success(),
+        "status: {:?}, stderr: {}",
+        out.status.code(),
+        String::from_utf8_lossy(&out.stderr)
+    );
+    let stdout = String::from_utf8_lossy(&out.stdout);
+    assert!(stdout.contains("register ok"), "RegisterClassExA: {stdout}");
+    assert!(stdout.contains("WM_CREATE"), "WM_CREATE fehlt: {stdout}");
+    assert!(stdout.contains("create ok"), "CreateWindowExA: {stdout}");
+    assert!(
+        stdout.contains("WM_APP+1"),
+        "PostMessage/Dispatch: {stdout}"
+    );
+    assert!(stdout.contains("loop end"), "Message-Loop: {stdout}");
+}
+
+#[test]
+#[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+fn runs_gditest_exe() {
+    // GDI32: Memory-DC, Bitmap, Pixel-Roundtrip (PHASE 10).
+    let out = Command::new(env!("CARGO_BIN_EXE_joys-win"))
+        .args(["run", gditest_exe_path()])
+        .output()
+        .expect("joys-win run starten");
+    assert!(
+        out.status.success(),
+        "status: {:?}, stderr: {}",
+        out.status.code(),
+        String::from_utf8_lossy(&out.stderr)
+    );
+    let stdout = String::from_utf8_lossy(&out.stdout);
+    assert!(stdout.contains("dc=1 bmp=1"), "DC/Bitmap: {stdout}");
+    assert!(
+        stdout.contains("get=16711680 ok=1"),
+        "Pixel-Roundtrip rot (0xFF0000): {stdout}"
+    );
 }

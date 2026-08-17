@@ -6,6 +6,7 @@ After=systemd-user-sessions.service
 Type=oneshot
 ExecStart=/usr/local/bin/joys-boot-test.sh
 StandardOutput=tty
+StandardError=tty
 TTYPath=/dev/ttyS0
 SyslogIdentifier=joys-boot-test
 

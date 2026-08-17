@@ -96,6 +96,15 @@ install_joys_binaries() {
             "$ROOTFS_DIR/root/filetest.exe"
         ok "filetest.exe als Test-Fixture installiert"
     fi
+    # windowtest.exe / gditest.exe (PHASE 9/10: User32/GDI32).
+    for f in windowtest gditest; do
+        if [ -f "$ROOT_DIR/compatibility/joys-win/tests/binaries/$f.exe" ]; then
+            install -m 0644 -D \
+                "$ROOT_DIR/compatibility/joys-win/tests/binaries/$f.exe" \
+                "$ROOTFS_DIR/root/$f.exe"
+            ok "$f.exe als Test-Fixture installiert"
+        fi
+    done
 }
 install_joys_binaries
 

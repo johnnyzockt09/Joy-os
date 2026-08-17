@@ -384,3 +384,196 @@ core::arch::global_asm!(
     ".size joys_win_reg_delete_key_a_stub, .-joys_win_reg_delete_key_a_stub",
     ".size joys_win_reg_close_key_stub, .-joys_win_reg_close_key_stub",
 );
+
+// ---------------------------------------------------------------------------
+// User32 / GDI32 Stubs (Win64 -> SysV)
+// ---------------------------------------------------------------------------
+
+/// Generischer Stub für beliebig viele Argumente (bis 4 Register + Stack).
+/// `$mv` sind Intel-Asm-Zeilen (Register-Moves + Stack-Moves).
+macro_rules! stub_n {
+    ($name:ident, $impl:ident, [$($mv:expr),*]) => {
+        core::arch::global_asm!(
+            concat!(
+                ".text\n",
+                ".globl ", stringify!($name), "\n",
+                ".type ", stringify!($name), ", @function\n",
+                stringify!($name), ":\n"
+            ),
+            "  push r12", "  push r13", "  push r14", "  push r15",
+            "  sub rsp, 0x38",
+            $($mv,)*
+            concat!("  call ", stringify!($impl)),
+            "  add rsp, 0x38", "  pop r15", "  pop r14", "  pop r13", "  pop r12",
+            "  ret",
+        );
+    };
+}
+
+stub_n!(
+    joys_win_register_class_ex_a_stub,
+    joys_win_register_class_ex_a_impl,
+    ["  mov rdi, rcx"]
+);
+stub_n!(
+    joys_win_create_window_ex_a_stub,
+    joys_win_create_window_ex_a_impl,
+    [
+        "  mov edi, ecx",
+        "  mov rsi, rdx",
+        "  mov rdx, r8",
+        "  mov ecx, r9d",
+        "  mov rax, [rsp+0x80]",
+        "  mov [rsp+0x08], rax",
+        "  mov rax, [rsp+0x88]",
+        "  mov [rsp+0x10], rax",
+        "  mov rax, [rsp+0x90]",
+        "  mov [rsp+0x18], rax",
+        "  mov rax, [rsp+0x98]",
+        "  mov [rsp+0x20], rax",
+        "  mov rax, [rsp+0xA0]",
+        "  mov [rsp+0x28], rax",
+        "  mov rax, [rsp+0xA8]",
+        "  mov [rsp+0x30], rax",
+        "  mov rax, [rsp+0xB0]",
+        "  mov [rsp+0x38], rax",
+        "  mov rax, [rsp+0xB8]",
+        "  mov [rsp+0x40], rax"
+    ]
+);
+stub_n!(
+    joys_win_show_window_stub,
+    joys_win_show_window_impl,
+    ["  mov rdi, rcx", "  mov esi, edx"]
+);
+stub_n!(
+    joys_win_update_window_stub,
+    joys_win_update_window_impl,
+    ["  mov rdi, rcx"]
+);
+stub_n!(
+    joys_win_destroy_window_stub,
+    joys_win_destroy_window_impl,
+    ["  mov rdi, rcx"]
+);
+stub_n!(
+    joys_win_get_message_a_stub,
+    joys_win_get_message_a_impl,
+    [
+        "  mov rdi, rcx",
+        "  mov rsi, rdx",
+        "  mov edx, r8d",
+        "  mov ecx, r9d"
+    ]
+);
+stub_n!(
+    joys_win_translate_message_stub,
+    joys_win_translate_message_impl,
+    ["  mov rdi, rcx"]
+);
+stub_n!(
+    joys_win_dispatch_message_a_stub,
+    joys_win_dispatch_message_a_impl,
+    ["  mov rdi, rcx"]
+);
+stub_n!(
+    joys_win_post_message_a_stub,
+    joys_win_post_message_a_impl,
+    [
+        "  mov rdi, rcx",
+        "  mov esi, edx",
+        "  mov rdx, r8",
+        "  mov rcx, r9"
+    ]
+);
+stub_n!(
+    joys_win_post_quit_message_stub,
+    joys_win_post_quit_message_impl,
+    ["  mov edi, ecx"]
+);
+stub_n!(
+    joys_win_def_window_proc_a_stub,
+    joys_win_def_window_proc_a_impl,
+    [
+        "  mov rdi, rcx",
+        "  mov esi, edx",
+        "  mov rdx, r8",
+        "  mov rcx, r9"
+    ]
+);
+stub_n!(
+    joys_win_get_dc_stub,
+    joys_win_get_dc_impl,
+    ["  mov rdi, rcx"]
+);
+stub_n!(
+    joys_win_release_dc_stub,
+    joys_win_release_dc_impl,
+    ["  mov rdi, rcx", "  mov rsi, rdx"]
+);
+stub_n!(
+    joys_win_get_module_handle_a_stub,
+    joys_win_get_module_handle_a_impl,
+    ["  mov rdi, rcx"]
+);
+stub_n!(
+    joys_win_create_compatible_dc_stub,
+    joys_win_create_compatible_dc_impl,
+    ["  mov rdi, rcx"]
+);
+stub_n!(
+    joys_win_create_compatible_bitmap_stub,
+    joys_win_create_compatible_bitmap_impl,
+    ["  mov rdi, rcx", "  mov esi, edx", "  mov edx, r8d"]
+);
+stub_n!(
+    joys_win_select_object_stub,
+    joys_win_select_object_impl,
+    ["  mov rdi, rcx", "  mov rsi, rdx"]
+);
+stub_n!(
+    joys_win_delete_object_stub,
+    joys_win_delete_object_impl,
+    ["  mov rdi, rcx"]
+);
+stub_n!(
+    joys_win_delete_dc_stub,
+    joys_win_delete_dc_impl,
+    ["  mov rdi, rcx"]
+);
+stub_n!(
+    joys_win_set_pixel_v_stub,
+    joys_win_set_pixel_v_impl,
+    [
+        "  mov rdi, rcx",
+        "  mov esi, edx",
+        "  mov edx, r8d",
+        "  mov ecx, r9d"
+    ]
+);
+stub_n!(
+    joys_win_get_pixel_stub,
+    joys_win_get_pixel_impl,
+    ["  mov rdi, rcx", "  mov esi, edx", "  mov edx, r8d"]
+);
+
+// Trampoline: ruft eine Windows-WndProc (Win64-Konvention) aus Rust (SysV).
+// SysV-Argumente: rdi=hwnd, rsi=message, rdx=wParam, rcx=lParam, r8=wndproc.
+core::arch::global_asm!(
+    ".text",
+    ".globl joys_win_call_wndproc",
+    ".type joys_win_call_wndproc, @function",
+    "joys_win_call_wndproc:",
+    "  push rbp",
+    "  sub rsp, 0x20",
+    "  mov r11, r8",
+    "  mov r9, rcx",
+    "  mov r8, rdx",
+    "  mov rdx, rsi",
+    "  mov rcx, rdi",
+    "  call r11",
+    "  add rsp, 0x20",
+    "  pop rbp",
+    "  ret",
+    ".size joys_win_call_wndproc, .-joys_win_call_wndproc",
+);

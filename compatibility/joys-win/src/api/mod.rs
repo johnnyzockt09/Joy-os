@@ -6,4 +6,6 @@
 
 pub mod advapi32;
 pub mod filesystem;
+pub mod gdi32;
 pub mod kernel32;
+pub mod user32;

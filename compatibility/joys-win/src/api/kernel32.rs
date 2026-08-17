@@ -414,6 +414,38 @@ pub unsafe extern "C" fn joys_win_lstrlen_a_impl(s: *const u8) -> i32 {
     n as i32
 }
 
+/// Impl von `GetModuleHandleA` – liefert die ImageBase des Moduls
+/// (vereinfacht: 1, solange kein Modul-Name angegeben wird).
+///
+/// # Safety
+/// `lp_module_name` muss gültig oder NULL sein (Win32-ABI).
+#[cfg(unix)]
+#[no_mangle]
+pub unsafe extern "C" fn joys_win_get_module_handle_a_impl(lp_module_name: *const u8) -> i64 {
+    if lp_module_name.is_null() {
+        return 1; // aktuelles Modul (kein echtes ImageBase-Mapping nötig)
+    }
+    let name = cstr_a(lp_module_name).unwrap_or_default();
+    if name.eq_ignore_ascii_case("kernel32.dll") {
+        return 0x7ffe_0000; // Fake-Basis wie in Windows (Reservierung)
+    }
+    0
+}
+
+/// Fallback für Nicht-Unix-Ziele.
+///
+/// # Safety
+/// Wie Unix-Variante.
+#[cfg(not(unix))]
+#[no_mangle]
+pub unsafe extern "C" fn joys_win_get_module_handle_a_impl(lp_module_name: *const u8) -> i64 {
+    if lp_module_name.is_null() {
+        1
+    } else {
+        0
+    }
+}
+
 /// Impl von `GetCommandLineA` – vorerst leere Kommandozeile.
 ///
 /// TODO(PHASE 7): Kommandozeile aus dem Prozess-Environment des Aufrufers
@@ -709,6 +741,7 @@ pub fn resolve(imp: &Import) -> Result<usize, ExeError> {
         "GetSystemInfo" => fn_addr(joys_win_get_system_info_stub),
         "lstrlenA" => fn_addr(joys_win_lstrlen_a_stub),
         "GetCommandLineA" => fn_addr(joys_win_get_command_line_a_stub),
+        "GetModuleHandleA" => fn_addr(joys_win_get_module_handle_a_stub),
         other => {
             return Err(ExeError::UnimplementedApi(
                 "kernel32.dll".into(),
@@ -748,6 +781,7 @@ extern "C" {
     fn joys_win_get_system_info_stub();
     fn joys_win_lstrlen_a_stub();
     fn joys_win_get_command_line_a_stub();
+    fn joys_win_get_module_handle_a_stub();
 }
 
 #[cfg(not(all(target_arch = "x86_64", target_os = "linux")))]
@@ -787,7 +821,8 @@ stub_const!(
     joys_win_virtual_free_stub,
     joys_win_get_system_info_stub,
     joys_win_lstrlen_a_stub,
-    joys_win_get_command_line_a_stub
+    joys_win_get_command_line_a_stub,
+    joys_win_get_module_handle_a_stub
 );
 
 #[cfg(test)]

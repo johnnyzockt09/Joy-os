@@ -18,5 +18,9 @@ rm -rf /root/.joys/windows/registry
 /usr/bin/joys-win run /root/filetest.exe
 echo "--- datei-inhalt ---"
 cat /tmp/joys_test.txt 2>/dev/null || echo "(fehlt)"
+echo "--- joys-win run windowtest.exe (User32) ---"
+/usr/bin/joys-win run /root/windowtest.exe
+echo "--- joys-win run gditest.exe (GDI32) ---"
+/usr/bin/joys-win run /root/gditest.exe
 echo "--- ende ---"
 echo "=== JOYS BOOT TEST ENDE ==="

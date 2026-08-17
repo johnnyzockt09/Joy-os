@@ -12,6 +12,10 @@ diagnose() {
     ip -4 addr show 2>/dev/null | grep -E "inet |state" | head -6 || echo "(kein ip)"
     echo "--- netzwerk-test ---"
     (ip route get 1.1.1.1 2>/dev/null | head -1) || echo "(kein Netz)"
+    echo "--- boot-test service ---"
+    systemctl status joys-boot-test.service --no-pager 2>&1 | head -12 || true
+    echo "--- joys-win prozesse ---"
+    ps aux | grep joys-win | grep -v grep || echo "(keine joys-win)"
     echo "--- Xorg-Log tail ---"
     tail -25 /var/log/Xorg.0.log 2>/dev/null || echo "(kein Xorg-Log)"
     echo "=== JOYS DESKTOP DIAG ENDE ==="
