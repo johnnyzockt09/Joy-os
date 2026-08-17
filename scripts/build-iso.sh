@@ -56,6 +56,9 @@ fi
 # 2. Kernel + Basis-Pakete + Initramfs in das Rootfs installieren.
 ./scripts/build-kernel.sh "$ROOTFS_DIR"
 
+# 2b. Joys Desktop (Openbox, Taskbar, Startmenü, File Manager, Terminal).
+./scripts/build-desktop.sh "$ROOTFS_DIR"
+
 # 3. Joys Core / joys-win Binaries in das Rootfs kopieren (wenn gebaut).
 install_joys_binaries() {
     if [ -f "$ROOT_DIR/target/release/joys-core" ]; then
@@ -133,17 +136,17 @@ terminal_input console serial
 terminal_output console serial
 
 menuentry "Joys OS $VERSION (${PROFILE})" {
-    linux /boot/vmlinuz boot=casper quiet splash console=tty0 console=ttyS0,115200
+    linux /boot/vmlinuz boot=casper noprompt quiet splash console=tty0 console=ttyS0,115200
     initrd /boot/initrd.img
 }
 
 menuentry "Joys OS $VERSION (${PROFILE}) – Diagnose (serial)" {
-    linux /boot/vmlinuz boot=casper console=ttyS0,115200
+    linux /boot/vmlinuz boot=casper noprompt console=ttyS0,115200
     initrd /boot/initrd.img
 }
 
 menuentry "Joys OS $VERSION (${PROFILE}) – Single User" {
-    linux /boot/vmlinuz boot=casper single console=ttyS0,115200
+    linux /boot/vmlinuz boot=casper noprompt single console=ttyS0,115200
     initrd /boot/initrd.img
 }
 EOF

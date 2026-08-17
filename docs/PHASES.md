@@ -12,8 +12,11 @@ gilt nur dann als abgeschlossen, wenn ihre Tests grün sind und der Abschluss in
 - Reproduzierbar: `./scripts/build-iso.sh` + `./scripts/test-system.sh`
   (siehe `docs/PHASE_1_REPORT.md`)
 
-## Phase 2 – Joys Desktop
-- Openbox (oder eigener WM) → Joys Shell → Desktop
+## Phase 2 – Joys Desktop ✅
+- Openbox (WM) + lxpanel (Taskbar/Startmenü) + pcmanfm (Dateimanager/Desktop)
+  + lxterminal + lxappearance; Autologin → Joys-Sitzung in der Live-ISO
+- Netzwerk (DHCP) und Shutdown funktionieren; Screenshot-Beweis in QEMU
+  (siehe `docs/PHASE_2_REPORT.md`)
 
 ## Phase 3 – Joys Core
 - System-API, Hardware-Erkennung, Dienste

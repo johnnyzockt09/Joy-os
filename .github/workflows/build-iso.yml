@@ -24,7 +24,7 @@ jobs:
       # QEMU-Systemtest benötigt zusätzlich qemu + ovmf.
       - name: Install QEMU test dependencies
         run: |
-          sudo apt-get install -y qemu-system-x86 ovmf
+          sudo apt-get install -y qemu-system-x86 ovmf socat
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
@@ -52,6 +52,11 @@ jobs:
       - name: System test (QEMU)
         if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
         run: ./scripts/test-system.sh dist/Joys-*-x86_64.iso
+
+      # Desktop-Test: openbox/lxpanel/pcmanfm + Netzwerk + Shutdown + Screenshot.
+      - name: Desktop test (QEMU)
+        if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+        run: ./scripts/test-desktop.sh dist/Joys-*-x86_64.iso
 
       - name: Generate checksums
         run: |

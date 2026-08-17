@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openbox_menu xmlns="http://openbox.org/3.4/menu">
+  <menu id="root-menu" label="Joys">
+    <item label="Terminal"><action name="Execute"><command>lxterminal</command></action></item>
+    <item label="Dateimanager"><action name="Execute"><command>pcmanfm</command></action></item>
+    <item label="Einstellungen (Erscheinungsbild)"><action name="Execute"><command>lxappearance</command></action></item>
+    <separator/>
+    <item label="joys-core (Systeminfo)"><action name="Execute"><command>lxterminal -e /usr/bin/joys-core</command></action></item>
+    <item label="joys-win (Info)"><action name="Execute"><command>lxterminal -e /usr/bin/joys-win</command></action></item>
+    <separator/>
+    <item label="Neu starten"><action name="Execute"><command>systemctl reboot</command></action></item>
+    <item label="Ausschalten"><action name="Execute"><command>systemctl poweroff</command></action></item>
+  </menu>
+</openbox_menu>
