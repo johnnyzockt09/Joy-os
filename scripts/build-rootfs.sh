@@ -15,6 +15,9 @@ MIRROR="${UBUNTU_MIRROR:-http://archive.ubuntu.com/ubuntu/}"
 require_root
 require_cmd debootstrap
 
+# Elternverzeichnis sicherstellen (debootstrap braucht einen existierenden Pfad).
+mkdir -p "$(dirname "$TARGET")"
+
 if [ -d "$TARGET/etc" ]; then
     warn "Rootfs existiert bereits: $TARGET (überspringe)"
     exit 0
