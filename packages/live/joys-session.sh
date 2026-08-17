@@ -3,16 +3,23 @@
 #
 #   openbox       -> Fenstermanager (leicht)
 #   joys-shell    -> moderne, Windows-11-artige Taskbar + Startmenü
-#   pcmanfm       -> Dateimanager + Desktop-Icons
+#   pcmanfm       -> Dateimanager + Desktop-Icons (Wallpaper)
+#   picom         -> Kompositor (Transparenz/Schatten, falls installiert)
 
 set -e
 
-# Joys-Branding im Hintergrund (dunkles Blau).
-if command -v xsetroot >/dev/null 2>&1; then
-    xsetroot -solid "#1b1b2f"
+# Modernes Joys-Wallpaper setzen (falls vorhanden).
+if command -v feh >/dev/null 2>&1 && [ -f /usr/share/backgrounds/joys-wallpaper.png ]; then
+    feh --bg-fill /usr/share/backgrounds/joys-wallpaper.png &
 fi
 
 openbox &
+
+# Kompositor (Transparenz/Schatten) – optional, falls picom installiert.
+if command -v picom >/dev/null 2>&1; then
+    picom --experimental-backends --vsync -b 2>/dev/null || true
+fi
+
 python3 /usr/local/bin/joys-shell.py &
 pcmanfm --desktop --profile=joys &
 

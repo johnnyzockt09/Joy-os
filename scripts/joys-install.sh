@@ -13,8 +13,15 @@ DISK="${1:-}"
 USERNAME="${2:-joys}"
 [ -b "$DISK" ] || { echo "FEHLER: '$DISK' ist kein Blockgerät"; exit 1; }
 
+# Mindestgröße prüfen (das Live-Rootfs ist >1,5 GB, empfohlen >= 8 GB).
+DISK_BYTES="$(blockdev --getsize64 "$DISK" 2>/dev/null || echo 0)"
+if [ "$DISK_BYTES" -lt 4000000000 ]; then
+    echo "FEHLER: Zielplatte zu klein (${DISK_BYTES} Bytes). Mindestens 4 GB empfohlen."
+    exit 1
+fi
+
 echo "=== Joys Installer ==="
-echo "Zielplatte: $DISK  (wird VOLLSTÄNDIG überschrieben!)"
+echo "Zielplatte: $DISK  (${DISK_BYTES} Bytes, wird VOLLSTÄNDIG überschrieben!)"
 
 TARGET=/mnt/joys-install
 case "$DISK" in
@@ -48,6 +55,9 @@ rsync -aAX --info=progress2 \
     / "$TARGET/"
 
 echo "[4/6] GRUB/UEFI installieren ..."
+# Die virtuellen Mountpoints existieren nach dem rsync (ohne /proc,/sys,/dev)
+# noch nicht – erst anlegen.
+mkdir -p "$TARGET/dev" "$TARGET/proc" "$TARGET/sys"
 mount --bind /dev "$TARGET/dev"
 mount --bind /proc "$TARGET/proc"
 mount --bind /sys "$TARGET/sys"

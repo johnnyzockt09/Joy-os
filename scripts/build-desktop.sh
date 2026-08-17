@@ -57,6 +57,9 @@ chroot "$TARGET" /bin/bash -c '
         grub-efi-amd64 \
         grub-efi-amd64-bin \
         os-prober \
+        imagemagick \
+        feh \
+        picom \
     || true
     apt-get clean
     rm -f /etc/resolv.conf
@@ -115,6 +118,14 @@ install -m 0755 "$ROOT_DIR/desktop/joys-shell/joys-installer.py" \
     "$TARGET/usr/local/bin/joys-installer.py"
 install -m 0755 "$ROOT_DIR/scripts/joys-install.sh" \
     "$TARGET/usr/local/bin/joys-install.sh"
+
+# Modernes Wallpaper erzeugen (in der chroot-Umgebung via imagemagick).
+install -m 0755 "$ROOT_DIR/packages/live/joys-wallpaper.sh" \
+    "$TARGET/usr/local/bin/joys-wallpaper.sh"
+chroot "$TARGET" /usr/bin/env bash -c '
+    export PATH=/usr/local/bin:/usr/bin:/bin
+    joys-wallpaper.sh || true
+' 2>/dev/null || true
 
 # Desktop-Einträge (Startmenü der Joys Shell).
 cat > "$TARGET/usr/share/applications/joys-installer.desktop" <<'EOF'
