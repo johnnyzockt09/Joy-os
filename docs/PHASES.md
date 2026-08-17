@@ -70,9 +70,11 @@ gilt nur dann als abgeschlossen, wenn ihre Tests grün sind und der Abschluss in
 ## Phase 12 – Audio ✅ (winmm/waveOut → ALSA)
 - waveOutOpen/Close/PrepareHeader/Write auf ALSA (dlopen-libasound);
   ohne Device MMSYSERR_NODRIVER wie Windows
-  (siehe `docs/PHASE_12_REPORT.md`)
-## Phase 13 – Graphics (Vulkan-Basis)
-## Phase 14 – Installer
+  (siehe `docs/PHASE_12_REPORT.md`)## Phase 13 – Graphics (Vulkan-Basis)
+## Phase 14 – Installer ✅ (Grundfunktion)
+- joys-install.sh (GPT/EFI/ext4, rsync, GRUB/UEFI, fstab, Benutzer) + GTK-Frontend
+- Bewiesen headless in QEMU auf 8-GB-Platte (test-installer.sh):
+  Installiert/GRUB-UEFI/fstab/Zielplatte – alles grün
 ## Phase 15 – Update-System
 ## Phase 16 – Performance-Optimierung
 
