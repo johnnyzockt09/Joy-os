@@ -61,7 +61,12 @@ gilt nur dann als abgeschlossen, wenn ihre Tests grün sind und der Abschluss in
 - Memory-DCs, Bitmaps, SetPixelV/GetPixel (echte Pixel, kein Dummy)
 - Bewiesen via gditest.exe in der Live-ISO
   (beide: `docs/PHASE_3_9_10_REPORT.md`)
-## Phase 11 – Networking (ws2_32)
+## Phase 11 – Networking (ws2_32) ✅
+- socket/bind/connect/listen/accept/send/recv/closesocket/getsockname +
+  WSAStartup/WSAGetLastError/htons/htonl/inet_addr auf Linux-Sockets;
+  Ordinal-Imports unterstützt
+- Bewiesen via networktest.exe (Loopback-Echo) in der Live-ISO
+  (siehe `docs/PHASE_11_REPORT.md`)
 ## Phase 12 – Audio
 ## Phase 13 – Graphics (Vulkan-Basis)
 ## Phase 14 – Installer

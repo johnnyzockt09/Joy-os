@@ -516,6 +516,80 @@ stub_n!(
     joys_win_get_module_handle_a_impl,
     ["  mov rdi, rcx"]
 );
+// --- ws2_32 (Sockets) ---
+stub_n!(
+    joys_win_wsastartup_stub,
+    joys_win_wsastartup_impl,
+    ["  mov edi, ecx", "  mov rsi, rdx"]
+);
+stub_n!(joys_win_wsacleanup_stub, joys_win_wsacleanup_impl, []);
+stub_n!(
+    joys_win_socket_stub,
+    joys_win_socket_impl,
+    ["  mov edi, ecx", "  mov esi, edx", "  mov edx, r8d"]
+);
+stub_n!(
+    joys_win_bind_stub,
+    joys_win_bind_impl,
+    ["  mov rdi, rcx", "  mov rsi, rdx", "  mov edx, r8d"]
+);
+stub_n!(
+    joys_win_connect_stub,
+    joys_win_connect_impl,
+    ["  mov rdi, rcx", "  mov rsi, rdx", "  mov edx, r8d"]
+);
+stub_n!(
+    joys_win_listen_stub,
+    joys_win_listen_impl,
+    ["  mov rdi, rcx", "  mov esi, edx"]
+);
+stub_n!(
+    joys_win_accept_stub,
+    joys_win_accept_impl,
+    ["  mov rdi, rcx", "  mov rsi, rdx", "  mov rdx, r8"]
+);
+stub_n!(
+    joys_win_send_stub,
+    joys_win_send_impl,
+    [
+        "  mov rdi, rcx",
+        "  mov rsi, rdx",
+        "  mov edx, r8d",
+        "  mov ecx, r9d"
+    ]
+);
+stub_n!(
+    joys_win_recv_stub,
+    joys_win_recv_impl,
+    [
+        "  mov rdi, rcx",
+        "  mov rsi, rdx",
+        "  mov edx, r8d",
+        "  mov ecx, r9d"
+    ]
+);
+stub_n!(
+    joys_win_closesocket_stub,
+    joys_win_closesocket_impl,
+    ["  mov rdi, rcx"]
+);
+stub_n!(
+    joys_win_getsockname_stub,
+    joys_win_getsockname_impl,
+    ["  mov rdi, rcx", "  mov rsi, rdx", "  mov rdx, r8"]
+);
+stub_n!(
+    joys_win_wsagetlasterror_stub,
+    joys_win_wsagetlasterror_impl,
+    []
+);
+stub_n!(joys_win_htons_stub, joys_win_htons_impl, ["  mov edi, ecx"]);
+stub_n!(joys_win_htonl_stub, joys_win_htonl_impl, ["  mov edi, ecx"]);
+stub_n!(
+    joys_win_inet_addr_stub,
+    joys_win_inet_addr_impl,
+    ["  mov rdi, rcx"]
+);
 stub_n!(
     joys_win_create_compatible_dc_stub,
     joys_win_create_compatible_dc_impl,

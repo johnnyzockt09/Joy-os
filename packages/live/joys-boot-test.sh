@@ -22,5 +22,7 @@ echo "--- joys-win run windowtest.exe (User32) ---"
 /usr/bin/joys-win run /root/windowtest.exe
 echo "--- joys-win run gditest.exe (GDI32) ---"
 /usr/bin/joys-win run /root/gditest.exe
+echo "--- joys-win run networktest.exe (ws2_32) ---"
+/usr/bin/joys-win run /root/networktest.exe
 echo "--- ende ---"
 echo "=== JOYS BOOT TEST ENDE ==="

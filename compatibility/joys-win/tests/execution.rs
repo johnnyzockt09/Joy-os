@@ -35,6 +35,14 @@ fn gditest_exe_path() -> &'static str {
     concat!(env!("CARGO_MANIFEST_DIR"), "/tests/binaries/gditest.exe")
 }
 
+#[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+fn networktest_exe_path() -> &'static str {
+    concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/tests/binaries/networktest.exe"
+    )
+}
+
 #[test]
 #[cfg(all(target_os = "linux", target_arch = "x86_64"))]
 fn analyzes_hello_exe() {
@@ -203,5 +211,28 @@ fn runs_gditest_exe() {
     assert!(
         stdout.contains("get=16711680 ok=1"),
         "Pixel-Roundtrip rot (0xFF0000): {stdout}"
+    );
+}
+
+#[test]
+#[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+fn runs_networktest_exe() {
+    // ws2_32: Loopback-Echo über echte Sockets (PHASE 11).
+    let out = Command::new(env!("CARGO_BIN_EXE_joys-win"))
+        .args(["run", networktest_exe_path()])
+        .output()
+        .expect("joys-win run starten");
+    assert!(
+        out.status.success(),
+        "status: {:?}, stderr: {}",
+        out.status.code(),
+        String::from_utf8_lossy(&out.stderr)
+    );
+    let stdout = String::from_utf8_lossy(&out.stdout);
+    assert!(stdout.contains("wsastartup=0"), "WSAStartup: {stdout}");
+    assert!(stdout.contains("bind=0"), "bind: {stdout}");
+    assert!(
+        stdout.contains("echo=ping net ok=1"),
+        "Loopback-Echo: {stdout}"
     );
 }

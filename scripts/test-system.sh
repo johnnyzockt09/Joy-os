@@ -76,6 +76,7 @@ expect "reg_create=0 set=0 get=0 value=registry works" "filetest.exe: Registry (
 expect "WM_APP+1" "windowtest.exe: User32-Message-Loop (PHASE 9)"
 expect "loop end" "windowtest.exe: Message-Loop beendet"
 expect "get=16711680 ok=1" "gditest.exe: GDI-Pixel-Roundtrip (PHASE 10)"
+expect "echo=ping net ok=1" "networktest.exe: Loopback-Echo (PHASE 11)"
 expect "x86_64 GNU/Linux" "Linux-Kernel (x86_64) läuft"
 expect "login:" "Login-Prompt erreicht"
 
