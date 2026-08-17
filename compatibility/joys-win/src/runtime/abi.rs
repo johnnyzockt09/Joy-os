@@ -590,6 +590,37 @@ stub_n!(
     joys_win_inet_addr_impl,
     ["  mov rdi, rcx"]
 );
+
+// --- winmm (Audio) ---
+stub_n!(
+    joys_win_wave_out_open_stub,
+    joys_win_wave_out_open_impl,
+    [
+        "  mov rdi, rcx",
+        "  mov esi, edx",
+        "  mov rdx, r8",
+        "  mov rcx, r9",
+        "  mov rax, [rsp+0x80]",
+        "  mov [rsp+0x08], rax",
+        "  mov eax, [rsp+0x88]",
+        "  mov [rsp+0x10], eax"
+    ]
+);
+stub_n!(
+    joys_win_wave_out_close_stub,
+    joys_win_wave_out_close_impl,
+    ["  mov rdi, rcx"]
+);
+stub_n!(
+    joys_win_wave_out_prepare_header_stub,
+    joys_win_wave_out_prepare_header_impl,
+    ["  mov rdi, rcx", "  mov rsi, rdx", "  mov edx, r8d"]
+);
+stub_n!(
+    joys_win_wave_out_write_stub,
+    joys_win_wave_out_write_impl,
+    ["  mov rdi, rcx", "  mov rsi, rdx", "  mov edx, r8d"]
+);
 stub_n!(
     joys_win_create_compatible_dc_stub,
     joys_win_create_compatible_dc_impl,

@@ -77,6 +77,7 @@ expect "WM_APP+1" "windowtest.exe: User32-Message-Loop (PHASE 9)"
 expect "loop end" "windowtest.exe: Message-Loop beendet"
 expect "get=16711680 ok=1" "gditest.exe: GDI-Pixel-Roundtrip (PHASE 10)"
 expect "echo=ping net ok=1" "networktest.exe: Loopback-Echo (PHASE 11)"
+expect "waveOutOpen=6" "audiotest.exe: winmm/waveOut (PHASE 12, NODRIVER ohne Audio)"
 expect "x86_64 GNU/Linux" "Linux-Kernel (x86_64) läuft"
 expect "login:" "Login-Prompt erreicht"
 

@@ -134,6 +134,53 @@ Icon=preferences-system
 Type=Application
 EOF
 
+# --- Joys Executable Manager: Doppelklick auf .exe startet ohne Auswahl ---
+install -m 0755 "$ROOT_DIR/desktop/joys-shell/joys-exe-manager.py" \
+    "$TARGET/usr/local/bin/joys-exe-manager.py"
+cat > "$TARGET/usr/share/applications/joys-exe.desktop" <<'EOF'
+[Desktop Entry]
+Name=Joys Windows-Programm
+Comment=Windows-Programm über joys-win ausführen
+Exec=python3 /usr/local/bin/joys-exe-manager.py %f
+Type=Application
+Terminal=false
+MimeType=application/vnd.microsoft.portable-executable
+Icon=application-x-ms-dos-executable
+EOF
+# .exe mit dem Manager assoziieren (zwei Pfade: MIME- und Endungs-Registrierung).
+if [ -d "$TARGET/usr/share/application-registry" ]; then :; fi
+mkdir -p "$TARGET/usr/share/mime/packages"
+cat > "$TARGET/usr/share/mime/packages/application-x-ms-dos-executable.xml" <<'EOF'
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="application/vnd.microsoft.portable-executable">
+    <comment>Windows executable</comment>
+    <glob pattern="*.exe"/>
+  </mime-type>
+</mime-info>
+EOF
+cat > "$TARGET/usr/share/mime/globs2" <<'EOF'
+50:application/vnd.microsoft.portable-executable:*.exe
+EOF
+cat > "$TARGET/usr/share/mime/mime.cache" <<'EOF'
+EOF
+
+# .exe-Verknüpfung in /root/.local/share, die pcmanfm/xdg-open verwendet.
+mkdir -p "$TARGET/root/.local/share/applications"
+cp "$TARGET/usr/share/applications/joys-exe.desktop" \
+    "$TARGET/root/.local/share/applications/"
+mkdir -p "$TARGET/root/.local/share/mime/packages"
+cp "$TARGET/usr/share/mime/packages/application-x-ms-dos-executable.xml" \
+    "$TARGET/root/.local/share/mime/packages/"
+
+# lxde-file-manager / pcmanfm assoziiert Anwendungen über defaults.list.
+cat > "$TARGET/root/.config/mimeapps.list" <<'EOF'
+[Default Applications]
+application/vnd.microsoft.portable-executable=joys-exe.desktop
+EOF
+mkdir -p "$TARGET/root/.config"
+cp "$TARGET/root/.config/mimeapps.list" "$TARGET/root/.config/mimeapps.list" 2>/dev/null || true
+
 # --- Openbox-Konfiguration (Startmenü, Tasten) ---
 mkdir -p "$TARGET/root/.config/openbox"
 install -m 0644 "$ROOT_DIR/packages/live/openbox-rc.xml" \

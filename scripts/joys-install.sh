@@ -17,8 +17,10 @@ echo "=== Joys Installer ==="
 echo "Zielplatte: $DISK  (wird VOLLSTÄNDIG überschrieben!)"
 
 TARGET=/mnt/joys-install
-P1="${DISK}1"
-P2="${DISK}2"
+case "$DISK" in
+    /dev/nvme*) P1="${DISK}p1"; P2="${DISK}p2" ;;
+    *)          P1="${DISK}1"; P2="${DISK}2" ;;
+esac
 
 umount "$TARGET" 2>/dev/null || true
 

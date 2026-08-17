@@ -18,6 +18,14 @@ diagnose() {
     ps aux | grep joys-win | grep -v grep || echo "(keine joys-win)"
     echo "--- Xorg-Log tail ---"
     tail -25 /var/log/Xorg.0.log 2>/dev/null || echo "(kein Xorg-Log)"
+    echo "--- exe-assoziation ---"
+    command -v xdg-open >/dev/null 2>&1 && \
+        xdg-mime query default application/vnd.microsoft.portable-executable 2>/dev/null \
+        || echo "(kein xdg-mime)"
+    echo "--- joys-exe-manager vorhanden? ---"
+    ls -l /usr/local/bin/joys-exe-manager.py 2>/dev/null || echo "(fehlt)"
+    echo "--- doppelklick-durchstich (joys-win run hello.exe) ---"
+    timeout 10 /usr/bin/joys-win run /root/hello.exe 2>&1 | tail -2
     echo "=== JOYS DESKTOP DIAG ENDE ==="
 }
 
@@ -29,12 +37,21 @@ mkdir -p /mnt/host
 modprobe 9p 9pnet 9pnet_virtio 2>/dev/null || true
 for i in 1 2 3; do
     if mount -t 9p -o trans=virtio hostshare /mnt/host 2>/dev/null; then
-        # Installer-Test: nur wenn das DO_INSTALL-Flag gesetzt ist und eine
-        # Zielplatte existiert (für den automatisierten QEMU-Install-Test).
-        if [ -e /mnt/host/DO_INSTALL ] && [ -b /dev/sda ]; then
+        # Installer-Test: nur wenn das DO_INSTALL-Flag gesetzt ist. Die
+        # Zielplatte kann /dev/sda oder /dev/vda sein (QEMU-Abstraktion).
+        if [ -e /mnt/host/DO_INSTALL ]; then
             echo "=== JOYS INSTALLER TEST (headless) ==="
-            /usr/local/bin/joys-install.sh /dev/sda joys > /mnt/host/install.log 2>&1
-            echo "installer exit=$?"
+            TARGET_DISK=""
+            for d in /dev/vda /dev/sda /dev/nvme0n1; do
+                if [ -b "$d" ]; then TARGET_DISK="$d"; break; fi
+            done
+            if [ -z "$TARGET_DISK" ]; then
+                echo "FEHLER: keine Zielplatte gefunden" > /mnt/host/install.log
+            else
+                echo "Zielplatte: $TARGET_DISK"
+                /usr/local/bin/joys-install.sh "$TARGET_DISK" joys > /mnt/host/install.log 2>&1
+            fi
+            echo "installer exit=$?" >> /mnt/host/install.log
             umount /mnt/host 2>/dev/null || true
             exit 0
         fi

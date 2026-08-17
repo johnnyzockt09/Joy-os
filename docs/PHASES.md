@@ -67,7 +67,10 @@ gilt nur dann als abgeschlossen, wenn ihre Tests grün sind und der Abschluss in
   Ordinal-Imports unterstützt
 - Bewiesen via networktest.exe (Loopback-Echo) in der Live-ISO
   (siehe `docs/PHASE_11_REPORT.md`)
-## Phase 12 – Audio
+## Phase 12 – Audio ✅ (winmm/waveOut → ALSA)
+- waveOutOpen/Close/PrepareHeader/Write auf ALSA (dlopen-libasound);
+  ohne Device MMSYSERR_NODRIVER wie Windows
+  (siehe `docs/PHASE_12_REPORT.md`)
 ## Phase 13 – Graphics (Vulkan-Basis)
 ## Phase 14 – Installer
 ## Phase 15 – Update-System

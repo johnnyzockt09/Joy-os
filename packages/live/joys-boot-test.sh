@@ -24,5 +24,7 @@ echo "--- joys-win run gditest.exe (GDI32) ---"
 /usr/bin/joys-win run /root/gditest.exe
 echo "--- joys-win run networktest.exe (ws2_32) ---"
 /usr/bin/joys-win run /root/networktest.exe
+echo "--- joys-win run audiotest.exe (winmm) ---"
+/usr/bin/joys-win run /root/audiotest.exe 2>/dev/null | grep waveOut || echo "(kein waveOut-Output)"
 echo "--- ende ---"
 echo "=== JOYS BOOT TEST ENDE ==="

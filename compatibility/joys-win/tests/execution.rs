@@ -26,6 +26,19 @@ fn filetest_exe_path() -> &'static str {
 }
 
 #[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+fn networktest_exe_path() -> &'static str {
+    concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/tests/binaries/networktest.exe"
+    )
+}
+
+#[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+fn audiotest_exe_path() -> &'static str {
+    concat!(env!("CARGO_MANIFEST_DIR"), "/tests/binaries/audiotest.exe")
+}
+
+#[cfg(all(target_os = "linux", target_arch = "x86_64"))]
 fn windowtest_exe_path() -> &'static str {
     concat!(env!("CARGO_MANIFEST_DIR"), "/tests/binaries/windowtest.exe")
 }
@@ -33,14 +46,6 @@ fn windowtest_exe_path() -> &'static str {
 #[cfg(all(target_os = "linux", target_arch = "x86_64"))]
 fn gditest_exe_path() -> &'static str {
     concat!(env!("CARGO_MANIFEST_DIR"), "/tests/binaries/gditest.exe")
-}
-
-#[cfg(all(target_os = "linux", target_arch = "x86_64"))]
-fn networktest_exe_path() -> &'static str {
-    concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/tests/binaries/networktest.exe"
-    )
 }
 
 #[test]
@@ -234,5 +239,22 @@ fn runs_networktest_exe() {
     assert!(
         stdout.contains("echo=ping net ok=1"),
         "Loopback-Echo: {stdout}"
+    );
+}
+
+#[test]
+#[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+fn runs_audiotest_exe() {
+    // winmm/waveOut (PHASE 12): Ohne Audio-Device (WSL/QEMU) muss
+    // waveOutOpen MMSYSERR_NODRIVER (6) liefern – echtes Windows-Verhalten.
+    let out = Command::new(env!("CARGO_BIN_EXE_joys-win"))
+        .args(["run", audiotest_exe_path()])
+        .output()
+        .expect("joys-win run starten");
+    let stdout = String::from_utf8_lossy(&out.stdout);
+    // Ergebnis: entweder NODRIVER (kein Device) oder open ok (mit ALSA).
+    assert!(
+        stdout.contains("waveOutOpen=6") || stdout.contains("waveOutOpen=0"),
+        "waveOutOpen muss NODRIVER(6) oder OK(0) sein: {stdout}"
     );
 }

@@ -64,6 +64,7 @@ unsafe fn resolve_imports(img: &PeImage, mapped: &MappedImage) -> Result<(), Exe
                 "user32.dll" => crate::api::user32::resolve(imp)?,
                 "gdi32.dll" => crate::api::gdi32::resolve(imp)?,
                 "ws2_32.dll" => crate::api::ws2_32::resolve(imp)?,
+                "winmm.dll" => crate::api::winmm::resolve(imp)?,
                 other => return Err(ExeError::UnimplementedApi(other.into(), import_name(imp))),
             };
             let iat_rva = d.first_thunk + i as u32 * ps;
