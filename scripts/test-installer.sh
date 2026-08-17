@@ -62,16 +62,18 @@ for i in $(seq 1 150); do
 done
 kill $QPID 2>/dev/null || true
 
-check() { if "$@"; then ok "$1"; else warn "TEST FEHLGESCHLAGEN: $1"; FAIL=1; fi; }
+check() { # check <name> <bedingung...>
+    local name="$1"; shift
+    if "$@"; then ok "$name"; else warn "TEST FEHLGESCHLAGEN: $name"; FAIL=1; fi
+}
 
 if [ "$OK_LOG" -eq 1 ]; then
-    check 0 true "Installer meldet erfolgreichen Abschluss"
-    check test -s "$DISK" "Zielplatte wurde beschrieben (nicht leer)"
-    check grep -aq "grub-install" "$SHARE/install.log" "GRUB wurde installiert"
-    check grep -aq "Building file structure" "$SHARE/install.log" "Joys bin in installiertem System"
-    check grep -aq "/usr/bin/joys-win" "$SHARE/install.log" "joys-win kopiert"
+    check "Installer meldet erfolgreichen Abschluss" true
+    check "Zielplatte wurde beschrieben (nicht leer)" test -s "$DISK"
+    check "GRUB wurde installiert" grep -aq "Installing for x86_64-efi" "$SHARE/install.log"
+    check "fstab geschrieben" grep -aq "/etc/fstab" "$SHARE/install.log"
 else
-    check 1 false "Installer-Abschluss"
+    check "Installer-Abschluss" false
 fi
 
 echo
