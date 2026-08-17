@@ -11,3 +11,4 @@ description = "Joys OS - zentrale System-API (System, Hardware, Prozesse, Dateie
 name = "joys_core"
 
 [dependencies]
+libc = "0.2"
