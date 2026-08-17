@@ -7,7 +7,7 @@ sleep 150
 diagnose() {
     echo "=== JOYS DESKTOP DIAG ==="
     echo "--- session-prozesse ---"
-    ps aux | grep -E "Xorg|openbox|lxpanel|pcmanfm|xinit|startx|joys-session" | grep -v grep
+    ps aux | grep -E "Xorg|openbox|pcmanfm|joys-shell|joys-settings|xinit|startx|joys-session" | grep -v grep
     echo "--- netzwerk ---"
     ip -4 addr show 2>/dev/null | grep -E "inet |state" | head -6 || echo "(kein ip)"
     echo "--- netzwerk-test ---"
@@ -29,6 +29,15 @@ mkdir -p /mnt/host
 modprobe 9p 9pnet 9pnet_virtio 2>/dev/null || true
 for i in 1 2 3; do
     if mount -t 9p -o trans=virtio hostshare /mnt/host 2>/dev/null; then
+        # Installer-Test: nur wenn das DO_INSTALL-Flag gesetzt ist und eine
+        # Zielplatte existiert (für den automatisierten QEMU-Install-Test).
+        if [ -e /mnt/host/DO_INSTALL ] && [ -b /dev/sda ]; then
+            echo "=== JOYS INSTALLER TEST (headless) ==="
+            /usr/local/bin/joys-install.sh /dev/sda joys > /mnt/host/install.log 2>&1
+            echo "installer exit=$?"
+            umount /mnt/host 2>/dev/null || true
+            exit 0
+        fi
         diagnose > /mnt/host/desktop-diag.txt 2>&1
         umount /mnt/host 2>/dev/null || true
         echo "9p-Diagnose geschrieben"

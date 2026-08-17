@@ -1,5 +1,10 @@
 # THIRD_PARTY.md – Third-Party References & Licenses
 
+> **Lizenz-Status von Joys selbst:** Der eigene Joys-Code (joys-core,
+> joys-win, Shell, Installer, Skripte) ist **proprietär** lizenziert
+> (siehe [LICENSE](LICENSE)). Die unten genannten Drittanbieter-Komponenten,
+> auf denen Joys aufbaut, bleiben unter ihren jeweiligen Open-Source-Lizenzen.
+
 This file documents every third-party project that is **referenced**, **studied**
 or **used** by Joys OS, together with its license and the parts we rely on.
 

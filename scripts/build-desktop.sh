@@ -47,6 +47,16 @@ chroot "$TARGET" /bin/bash -c '
         dbus-x11 \
         xdg-utils \
         fonts-dejavu-core \
+        python3 \
+        python3-gi \
+        gir1.2-gtk-3.0 \
+        rsync \
+        parted \
+        dosfstools \
+        efibootmgr \
+        grub-efi-amd64 \
+        grub-efi-amd64-bin \
+        os-prober \
     || true
     apt-get clean
     rm -f /etc/resolv.conf
@@ -94,6 +104,34 @@ install -m 0755 "$ROOT_DIR/packages/live/joys-session.sh" \
     "$TARGET/usr/local/bin/joys-session"
 cat > "$TARGET/root/.xinitrc" <<'EOF'
 exec /usr/local/bin/joys-session
+EOF
+
+# --- Joys Shell / Settings / Installer (modernes Design) ---
+install -m 0755 "$ROOT_DIR/desktop/joys-shell/joys-shell.py" \
+    "$TARGET/usr/local/bin/joys-shell.py"
+install -m 0755 "$ROOT_DIR/desktop/joys-shell/joys-settings.py" \
+    "$TARGET/usr/local/bin/joys-settings.py"
+install -m 0755 "$ROOT_DIR/desktop/joys-shell/joys-installer.py" \
+    "$TARGET/usr/local/bin/joys-installer.py"
+install -m 0755 "$ROOT_DIR/scripts/joys-install.sh" \
+    "$TARGET/usr/local/bin/joys-install.sh"
+
+# Desktop-Einträge (Startmenü der Joys Shell).
+cat > "$TARGET/usr/share/applications/joys-installer.desktop" <<'EOF'
+[Desktop Entry]
+Name=Joys Installer
+Comment=Joys OS auf der Festplatte installieren
+Exec=python3 /usr/local/bin/joys-installer.py
+Icon=drive-harddisk
+Type=Application
+EOF
+cat > "$TARGET/usr/share/applications/joys-settings.desktop" <<'EOF'
+[Desktop Entry]
+Name=Einstellungen
+Comment=Joys Einstellungen
+Exec=python3 /usr/local/bin/joys-settings.py
+Icon=preferences-system
+Type=Application
 EOF
 
 # --- Openbox-Konfiguration (Startmenü, Tasten) ---

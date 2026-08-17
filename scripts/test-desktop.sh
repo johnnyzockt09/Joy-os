@@ -2,7 +2,7 @@
 # Desktop-Test: bootet die Joys-ISO in QEMU (UEFI/OVMF) und verifiziert die
 # Joys-Desktop-Sitzung:
 #   - Xorg + startx/xinit laufen
-#   - openbox (Fenstermanager), lxpanel (Taskbar/Startmenü) und
+#   - openbox (Fenstermanager), joys-shell (Taskbar/Startmenü) und
 #     pcmanfm (Dateimanager/Desktop-Icons) laufen
 #   - ein Screenshot rendert (bunte Pixel, kein reines Schwarz)
 #
@@ -95,7 +95,7 @@ if [ -f "$DIAG" ]; then
     check "$(grep -aq 'Xorg' "$DIAG"; echo $?)" "Xorg läuft"
     check "$(grep -aq 'joys-session' "$DIAG"; echo $?)" "joys-session läuft"
     check "$(grep -aq 'openbox' "$DIAG"; echo $?)" "openbox (Fenstermanager) läuft"
-    check "$(grep -aq 'lxpanel' "$DIAG"; echo $?)" "lxpanel (Taskbar/Startmenü) läuft"
+    check "$(grep -aq 'joys-shell' "$DIAG"; echo $?)" "joys-shell (Taskbar/Startmenü) läuft"
     check "$(grep -aq 'pcmanfm' "$DIAG"; echo $?)" "pcmanfm (Dateimanager/Desktop) läuft"
     check "$(grep -aq 'inet ' "$DIAG"; echo $?)" "Netzwerk (DHCP-IP) läuft"
 fi

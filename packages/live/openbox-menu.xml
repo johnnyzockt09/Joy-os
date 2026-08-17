@@ -3,7 +3,8 @@
   <menu id="root-menu" label="Joys">
     <item label="Terminal"><action name="Execute"><command>lxterminal</command></action></item>
     <item label="Dateimanager"><action name="Execute"><command>pcmanfm</command></action></item>
-    <item label="Einstellungen (Erscheinungsbild)"><action name="Execute"><command>lxappearance</command></action></item>
+    <item label="Einstellungen"><action name="Execute"><command>python3 /usr/local/bin/joys-settings.py</command></action></item>
+    <item label="Joys Installer"><action name="Execute"><command>python3 /usr/local/bin/joys-installer.py</command></action></item>
     <separator/>
     <item label="joys-core (Systeminfo)"><action name="Execute"><command>lxterminal -e /usr/bin/joys-core</command></action></item>
     <item label="joys-win (Info)"><action name="Execute"><command>lxterminal -e /usr/bin/joys-win</command></action></item>

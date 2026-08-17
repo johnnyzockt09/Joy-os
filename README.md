@@ -85,4 +85,7 @@ Siehe [`docs/PHASES.md`](docs/PHASES.md) für die Phasenliste und
 
 ## Lizenzen & Drittanbieter
 
-Siehe [`LICENSE`](LICENSE) und [`THIRD_PARTY.md`](THIRD_PARTY.md).
+Der **eigene Joys-Code** ist proprietär lizenziert (siehe [`LICENSE`](LICENSE)).
+Die zugrundeliegenden Open-Source-Komponenten (Linux-Kernel, Ubuntu, GRUB,
+GTK, Openbox, casper, Rust …) bleiben unter ihren jeweiligen Lizenzen
+(siehe [`THIRD_PARTY.md`](THIRD_PARTY.md)).

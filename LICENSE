@@ -1,21 +1,43 @@
-MIT License
+JOYS OS – PROPRIETARY SOFTWARE LICENSE AGREEMENT
 
-Copyright (c) 2026 Joys OS Developers
+Copyright (c) 2026 Joys OS Project (johnnyzockt09). All rights reserved.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+This license applies exclusively to the original Joys OS source code
+developed by the Joys OS Project, i.e. the following components and any
+derivatives thereof:
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+  - core/joys-core          (Joys System-API)
+  - compatibility/joys-win  (Windows-Kompatibilitätsruntime)
+  - desktop/joys-shell      (Joys Shell, Settings, Installer)
+  - scripts/                (Joys-Build-Skripte)
+  - packages/live/          (Joys-Session- und Live-Dateien, sofern eigen)
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+The software is provided "AS IS", WITHOUT WARRANTY OF ANY KIND, express or
+implied, including but not limited to the warranties of merchantability,
+fitness for a particular purpose and noninfringement.
+
+1. GRANT OF LICENSE
+   The author grants you a personal, non-exclusive, non-transferable,
+   royalty-free license to USE, COPY and MODIFY this software for your own
+   private, non-commercial purposes, and to DISTRIBUTE unmodified copies
+   provided that this license notice is retained.
+
+2. RESTRICTIONS
+   You may NOT:
+   - redistribute modified versions under your own name or as "Joys OS"
+     without explicit written permission,
+   - sublicense, sell or otherwise commercialize this software or modified
+     versions without explicit written permission,
+   - remove or alter the copyright and license notices.
+
+3. THIRD-PARTY COMPONENTS
+   This software is based on third-party open-source components (Linux
+   kernel, Ubuntu, GRUB, GTK, Openbox, casper, Rust and others). Those
+   components remain under their respective licenses (GPL-2.0, GPL-3.0,
+   LGPL-2.1, MIT, Apache-2.0, EPL-2.0 ...). The grant and restrictions
+   above apply ONLY to the original Joys OS code listed above. See
+   THIRD_PARTY.md for details.
+
+4. NO WARRANTY / LIABILITY
+   IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   LIABILITY ARISING FROM THE USE OF THIS SOFTWARE.
