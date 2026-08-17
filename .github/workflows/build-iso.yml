@@ -47,6 +47,11 @@ jobs:
       - name: Test ISO
         run: ./scripts/test-iso.sh dist/Joys-*-x86_64.iso
 
+      # Die sudo-Build-Schritte erzeugen root-gehörige Dateien; für die
+      # weiteren (Nicht-root-)Schritte zurückgeben.
+      - name: Fix ownership
+        run: sudo chown -R "$USER:$USER" dist build 2>/dev/null || true
+
       # Vollständiger Boottest in QEMU (GRUB→Kernel→Live-System→joys-binaries).
       # Nur bei Tags + manuellem Auslösen, da TCG-Boot mehrere Minuten dauert.
       - name: System test (QEMU)
