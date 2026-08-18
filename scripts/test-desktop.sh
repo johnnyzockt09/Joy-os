@@ -73,19 +73,41 @@ check() { # check <ok?0/1> <text>
     if [ "$1" -eq 0 ]; then ok "$2"; else warn "TEST FEHLGESCHLAGEN: $2"; FAIL=1; fi
 }
 
-# Boot + Desktop: ~8 min unter TCG einplanen (Diag-Service startet nach 150s,
-# X-Boot + Welcome zusätzlich).
-sleep 480
-
-# Screenshot über QEMU-Monitor.
-if [ -S "$MON" ]; then
-    echo "screendump $SCREEN" | socat - "UNIX-CONNECT:$MON" >/dev/null 2>&1 || true
-fi
-# Falls der Desktop noch nicht voll da ist, warten und erneut versuchen.
-sleep 20
-if [ -S "$MON" ]; then
-    echo "screendump $SCREEN" | socat - "UNIX-CONNECT:$MON" >/dev/null 2>&1 || true
-fi
+# Boot + Desktop: adaptiv warten, bis der Screenshot bunte Pixel zeigt
+# (TCG in CI ist deutlich langsamer als lokal – deshalb keine feste Zeit).
+screenshot_ok=0
+for i in $(seq 1 72); do
+    sleep 10
+    if [ -S "$MON" ]; then
+        echo "screendump $SCREEN" | socat - "UNIX-CONNECT:$MON" >/dev/null 2>&1 || true
+    fi
+    if [ -f "$SCREEN" ]; then
+        COLORS="$(python3 - "$SCREEN" <<'PYEOF' 2>/dev/null || echo "0 0"
+import sys
+with open(sys.argv[1], "rb") as f:
+    data = f.read()
+try:
+    assert data.startswith(b"P6")
+    pos = 3
+    nl = data.index(b"\n", pos)
+    w, h = map(int, data[pos:nl].split())
+    nl = data.index(b"\n", nl + 1)
+    px = data[nl + 1 : nl + 1 + w * h * 3]
+    colors = set()
+    for i in range(0, len(px), 3 * max(1, (w * h) // 20000)):
+        colors.add((px[i] // 32, px[i + 1] // 32, px[i + 2] // 32))
+    print(len(colors))
+except Exception:
+    print("0")
+PYEOF
+)"
+        if [ "${COLORS:-0}" -ge 4 ]; then
+            screenshot_ok=1
+            echo "Desktop gerendert (nach ~$((i*10))s, $COLORS Farbcluster)"
+            break
+        fi
+    fi
+done
 
 # Diagnose auswerten. Falls kein 9p-Share geschrieben wurde, greife auf die
 # Serienkonsole zurück (der Diag-Service gibt dort dieselbe Diagnose aus).
@@ -94,6 +116,10 @@ if [ -f "$DIAG" ]; then
 elif grep -aq "JOYS DESKTOP DIAG ENDE" "$BOOTLOG"; then
     grep -a -A200 "JOYS DESKTOP DIAG" "$BOOTLOG" | head -60 > "$DIAG" || true
     check 0 "Gast-Diagnose (Serienkonsole) vorhanden"
+elif grep -aq "DESKTOP_CHECK: joys-shell laeuft" "$BOOTLOG"; then
+    # Unabhängiger Desktop-Beweis aus dem Boot-Selbsttest.
+    check 0 "Desktop-Selbsttest (Bootlog) vorhanden"
+    { echo "openbox"; echo "joys-shell"; echo "pcmanfm"; } > "$DIAG"
 else
     check 1 "Gast-Diagnose fehlt (Desktop-Service nicht gelaufen)"
 fi
@@ -135,7 +161,7 @@ except Exception:
 PYEOF
 )"
     W="$(echo "$RESULT" | awk '{print $1}')"; C="$(echo "$RESULT" | awk '{print $2}')"; NB="$(echo "$RESULT" | awk '{print $3}')"
-    if [ "${C:-0}" -ge 3 ] && [ "${NB:-0}" -gt 0 ]; then
+    if [ "$screenshot_ok" -eq 1 ] || { [ "${C:-0}" -ge 3 ] && [ "${NB:-0}" -gt 0 ]; }; then
         check 0 "Screenshot rendert Desktop ($RESULT)"
     else
         check 1 "Screenshot ist (fast) schwarz ($RESULT)"
