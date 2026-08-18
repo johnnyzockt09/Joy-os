@@ -5,8 +5,8 @@
 # Statt fixem sleep wartet das Skript aktiv auf openbox (max. 360s).
 
 # Warten bis openbox läuft (X-Sitzung fertig). In CI/TCG dauert der X-Boot
-# lange – bis zu 480s warten.
-for i in $(seq 1 96); do
+# sehr lange – bis zu 20 min warten.
+for i in $(seq 1 240); do
     if pgrep -x openbox >/dev/null 2>&1 && pgrep -f "joys-shell.py" >/dev/null 2>&1; then
         break
     fi
