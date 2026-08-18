@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Joys Installer – installiert das laufende Live-System auf eine Festplatte.
 #
-#   ./scripts/joys-install.sh /dev/sdX [benutzername]
+#   ./scripts/joys-install.sh /dev/sdX [user] [hostname] [keyboard] [timezone]
+#                                 [fullname] [password]
 #
 # Ablauf: GPT-Partitionierung (EFI + ext4) -> Formatieren -> Kopieren
 # (rsync) -> GRUB/UEFI installieren -> Benutzer + Hostname setzen.
@@ -11,6 +12,11 @@ set -euo pipefail
 
 DISK="${1:-}"
 USERNAME="${2:-joys}"
+HOSTNAME="${3:-joys}"
+KEYBOARD="${4:-de}"
+TIMEZONE="${5:-Europe/Berlin}"
+FULLNAME="${6:-Joys User}"
+PASSWORD="${7:-joys}"
 [ -b "$DISK" ] || { echo "FEHLER: '$DISK' ist kein Blockgerät"; exit 1; }
 
 # Mindestgröße prüfen (das Live-Rootfs ist >1,5 GB, empfohlen >= 8 GB).
@@ -22,6 +28,8 @@ fi
 
 echo "=== Joys Installer ==="
 echo "Zielplatte: $DISK  (${DISK_BYTES} Bytes, wird VOLLSTÄNDIG überschrieben!)"
+echo "Benutzer:   $FULLNAME ($USERNAME) @ $HOSTNAME"
+echo "Tastatur:   $KEYBOARD, Zeitzone: $TIMEZONE"
 
 TARGET=/mnt/joys-install
 case "$DISK" in
@@ -71,10 +79,20 @@ chroot "$TARGET" /bin/bash -c "
     echo 'nameserver 1.1.1.1' > /etc/resolv.conf
     grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Joys
     update-grub || true
-    echo 'joys' > /etc/hostname
-    echo 'root:joys' | chpasswd
-    id -u $USERNAME 2>/dev/null || useradd -m -s /bin/bash $USERNAME
-    echo '$USERNAME:joys' | chpasswd
+    echo '$HOSTNAME' > /etc/hostname
+    echo 'root:$PASSWORD' | chpasswd
+    if ! id -u $USERNAME 2>/dev/null; then
+        useradd -m -s /bin/bash $USERNAME
+        chfn -f '$FULLNAME' $USERNAME 2>/dev/null || true
+    fi
+    echo '$USERNAME:$PASSWORD' | chpasswd
+    # Tastatur + Zeitzone setzen.
+    if command -v localectl >/dev/null 2>&1; then
+        localectl set-keymap $KEYBOARD 2>/dev/null || true
+        localectl set-x11-keymap $KEYBOARD 2>/dev/null || true
+    fi
+    ln -sf /usr/share/zoneinfo/$TIMEZONE /etc/localtime 2>/dev/null || true
+    echo '$TIMEZONE' > /etc/timezone 2>/dev/null || true
     rm -f /etc/resolv.conf
     ln -s /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf 2>/dev/null || true
 " || echo "WARN: chroot-Konfiguration hatte Fehler"

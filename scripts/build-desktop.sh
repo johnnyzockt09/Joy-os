@@ -60,6 +60,8 @@ chroot "$TARGET" /bin/bash -c '
         imagemagick \
         feh \
         picom \
+        plymouth \
+        plymouth-theme-script \
     || true
     apt-get clean
     rm -f /etc/resolv.conf
@@ -122,10 +124,24 @@ install -m 0755 "$ROOT_DIR/desktop/joys-shell/joys-settings.py" \
     "$TARGET/usr/local/bin/joys-settings.py"
 install -m 0755 "$ROOT_DIR/desktop/joys-shell/joys-installer.py" \
     "$TARGET/usr/local/bin/joys-installer.py"
+install -m 0755 "$ROOT_DIR/desktop/joys-shell/joys-welcome.py" \
+    "$TARGET/usr/local/bin/joys-welcome.py"
+install -m 0755 "$ROOT_DIR/desktop/joys-shell/joys-recovery.py" \
+    "$TARGET/usr/local/bin/joys-recovery.py"
+install -m 0755 "$ROOT_DIR/desktop/joys-shell/joys-store.py" \
+    "$TARGET/usr/local/bin/joys-store.py"
 install -m 0755 "$ROOT_DIR/scripts/joys-install.sh" \
     "$TARGET/usr/local/bin/joys-install.sh"
 install -m 0644 "$ROOT_DIR/packages/live/picom.conf" \
     "$TARGET/etc/xdg/picom-joys.conf"
+
+# Plymouth-Joys-Bootscreen.
+install -m 0755 "$ROOT_DIR/packages/live/joys-plymouth.sh" \
+    "$TARGET/usr/local/bin/joys-plymouth.sh"
+chroot "$TARGET" /usr/bin/env bash -c '
+    export PATH=/usr/local/bin:/usr/bin:/bin
+    joys-plymouth.sh || true
+' 2>/dev/null || true
 
 # Modernes Wallpaper erzeugen (in der chroot-Umgebung via imagemagick).
 install -m 0755 "$ROOT_DIR/packages/live/joys-wallpaper.sh" \
@@ -150,6 +166,30 @@ Name=Einstellungen
 Comment=Joys Einstellungen
 Exec=python3 /usr/local/bin/joys-settings.py
 Icon=preferences-system
+Type=Application
+EOF
+cat > "$TARGET/usr/share/applications/joys-store.desktop" <<'EOF'
+[Desktop Entry]
+Name=Joys Store
+Comment=Apps entdecken
+Exec=python3 /usr/local/bin/joys-store.py
+Icon=system-software-install
+Type=Application
+EOF
+cat > "$TARGET/usr/share/applications/joys-files.desktop" <<'EOF'
+[Desktop Entry]
+Name=Joys Files
+Comment=Dateimanager
+Exec=pcmanfm
+Icon=system-file-manager
+Type=Application
+EOF
+cat > "$TARGET/usr/share/applications/joys-recovery.desktop" <<'EOF'
+[Desktop Entry]
+Name=Joys Recovery
+Comment=Wiederherstellungsmodus
+Exec=python3 /usr/local/bin/joys-recovery.py
+Icon=system-run
 Type=Application
 EOF
 

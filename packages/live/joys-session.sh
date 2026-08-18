@@ -19,6 +19,13 @@ if command -v picom >/dev/null 2>&1 && [ -f /etc/xdg/picom-joys.conf ]; then
 fi
 
 python3 /usr/local/bin/joys-shell.py &
+
+# Im Live-Modus (ISO) das professionelle Welcome-/Install-Menü zeigen.
+# Nach einer Installation existiert /run/live/medium nicht mehr.
+if [ -d /run/live/medium ] || [ -d /cdrom ] || [ -e /run/live/medium ]; then
+    python3 /usr/local/bin/joys-welcome.py &
+fi
+
 pcmanfm --desktop --profile=joys &
 
 # Warten, bis alle beendet werden (Sitzung beenden).

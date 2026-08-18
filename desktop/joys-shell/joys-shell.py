@@ -17,12 +17,14 @@ ACCENT = "#3d7eff"
 
 APPS = [
     ("Terminal",      "utilities-terminal", ["lxterminal"]),
-    ("Dateimanager",  "system-file-manager", ["pcmanfm"]),
+    ("Joys Files",    "system-file-manager", ["pcmanfm"]),
     ("Einstellungen", "preferences-system", [sys.executable, "/usr/local/bin/joys-settings.py"]),
+    ("Joys Store",    "system-software-install", [sys.executable, "/usr/local/bin/joys-store.py"]),
     ("joys-core",     "utilities-system-monitor", ["lxterminal", "-e", "/usr/bin/joys-core"]),
     ("joys-win",      "application-x-ms-dos-executable", ["lxterminal", "-e", "/usr/bin/joys-win"]),
     ("joys-update",   "software-update-available", ["lxterminal", "-e", "/usr/bin/joys-update"]),
     ("Joys Installer","drive-harddisk", [sys.executable, "/usr/local/bin/joys-installer.py"]),
+    ("Joys Recovery", "system-run", [sys.executable, "/usr/local/bin/joys-recovery.py"]),
     ("Texteditor",    "accessories-text-editor", ["lxterminal", "-e", "/bin/nano"]),
 ]
 
@@ -208,8 +210,8 @@ class Panel(Gtk.Window):
 
         sysb = Gtk.Button()
         sysb.get_style_context().add_class("panel-button")
-        sysb.set_image(Gtk.Image(icon_name="system-shutdown-symbolic", pixel_size=18))
-        sysb.set_tooltip_text("System")
+        sysb.set_image(Gtk.Image(icon_name="preferences-system-symbolic", pixel_size=18))
+        sysb.set_tooltip_text("Quick Settings")
         sysb.connect("clicked", self.toggle_sysmenu)
         bar.pack_end(sysb, False, False, 0)
 
@@ -243,20 +245,64 @@ class Panel(Gtk.Window):
         self._menu and self._menu.hide()
         self._sysmenu.show_all()
         ax, ay = self._sysbtn.get_window().get_origin()
-        w = self._sysmenu.get_allocated_width() or 200
+        w = self._sysmenu.get_allocated_width() or 320
+        h = self._sysmenu.get_allocated_height() or 300
         self._sysmenu.move(ax + self._sysbtn.get_allocated_width() - w,
-                           ay - 150)
+                           ay - h)
 
     def _build_sysmenu(self):
         m = Gtk.Window(type=Gtk.WindowType.POPUP)
         m.set_decorated(False)
         m.get_style_context().add_class("start-menu")
-        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
-        box.set_margin_top(10)
-        box.set_margin_bottom(10)
-        box.set_margin_left(10)
-        box.set_margin_right(10)
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        box.set_margin_top(12)
+        box.set_margin_bottom(12)
+        box.set_margin_left(14)
+        box.set_margin_right(14)
         m.add(box)
+
+        # Notifications.
+        notif = Gtk.Label(label="Notifications", xalign=0)
+        notif.get_style_context().add_class("start-title")
+        box.pack_start(notif, False, False, 0)
+        for text in ("✓ Joys is up to date", "Network connected"):
+            n = Gtk.Label(label=text, xalign=0)
+            n.get_style_context().add_class("app-card")
+            box.pack_start(n, False, False, 0)
+
+        sep = Gtk.Separator()
+        box.pack_start(sep, False, False, 0)
+
+        qs = Gtk.Label(label="Quick Settings", xalign=0)
+        qs.get_style_context().add_class("start-title")
+        box.pack_start(qs, False, False, 0)
+
+        def toggle_row(text, active):
+            row = Gtk.Box(spacing=10)
+            lbl = Gtk.Label(label=text, xalign=0)
+            lbl.get_style_context().add_class("app-card")
+            sw = Gtk.Switch()
+            sw.set_active(active)
+            row.pack_start(lbl, True, True, 0)
+            row.pack_end(sw, False, False, 0)
+            box.pack_start(row, False, False, 0)
+
+        toggle_row("Wi-Fi", True)
+        toggle_row("Bluetooth", False)
+
+        volrow = Gtk.Box(spacing=10)
+        vlab = Gtk.Label(label="Volume", xalign=0)
+        vlab.get_style_context().add_class("app-card")
+        vol = Gtk.Scale.new_with_range(Gtk.Orientation.HORIZONTAL, 0, 100, 5)
+        vol.set_value(60)
+        vol.set_size_request(140, -1)
+        volrow.pack_start(vlab, True, True, 0)
+        volrow.pack_end(vol, False, False, 0)
+        box.pack_start(volrow, False, False, 0)
+
+        sep2 = Gtk.Separator()
+        box.pack_start(sep2, False, False, 0)
+
         for label, cmd in [
             ("Einstellungen", [sys.executable, "/usr/local/bin/joys-settings.py"]),
             ("Neu starten", ["systemctl", "reboot"]),
