@@ -73,10 +73,16 @@ check() { # check <ok?0/1> <text>
     if [ "$1" -eq 0 ]; then ok "$2"; else warn "TEST FEHLGESCHLAGEN: $2"; FAIL=1; fi
 }
 
-# Boot + Desktop: ~6-7 min unter TCG einplanen (Diag-Service startet nach 150s).
-sleep 400
+# Boot + Desktop: ~8 min unter TCG einplanen (Diag-Service startet nach 150s,
+# X-Boot + Welcome zusätzlich).
+sleep 480
 
 # Screenshot über QEMU-Monitor.
+if [ -S "$MON" ]; then
+    echo "screendump $SCREEN" | socat - "UNIX-CONNECT:$MON" >/dev/null 2>&1 || true
+fi
+# Falls der Desktop noch nicht voll da ist, warten und erneut versuchen.
+sleep 20
 if [ -S "$MON" ]; then
     echo "screendump $SCREEN" | socat - "UNIX-CONNECT:$MON" >/dev/null 2>&1 || true
 fi

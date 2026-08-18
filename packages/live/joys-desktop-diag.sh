@@ -4,8 +4,9 @@
 # auf die Serienkonsole UND (falls verfügbar) in den 9p-Share.
 # Statt fixem sleep wartet das Skript aktiv auf openbox (max. 360s).
 
-# Warten bis openbox läuft (X-Sitzung fertig).
-for i in $(seq 1 72); do
+# Warten bis openbox läuft (X-Sitzung fertig). In CI/TCG dauert der X-Boot
+# lange – bis zu 480s warten.
+for i in $(seq 1 96); do
     if pgrep -x openbox >/dev/null 2>&1 && pgrep -f "joys-shell.py" >/dev/null 2>&1; then
         break
     fi
