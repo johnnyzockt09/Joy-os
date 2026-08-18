@@ -97,6 +97,7 @@ if [ -f "$DIAG" ]; then
     check "$(grep -aq 'openbox' "$DIAG"; echo $?)" "openbox (Fenstermanager) läuft"
     check "$(grep -aq 'joys-shell' "$DIAG"; echo $?)" "joys-shell (Taskbar/Startmenü) läuft"
     check "$(grep -aq 'pcmanfm' "$DIAG"; echo $?)" "pcmanfm (Dateimanager/Desktop) läuft"
+    check "$(grep -aq 'joys-welcome' "$DIAG"; echo $?)" "joys-welcome (Live-Menü) bereit"
     check "$(grep -aq 'inet ' "$DIAG"; echo $?)" "Netzwerk (DHCP-IP) läuft"
 fi
 

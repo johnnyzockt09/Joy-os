@@ -6,7 +6,7 @@
 
 # Warten bis openbox läuft (X-Sitzung fertig).
 for i in $(seq 1 72); do
-    if pgrep -x openbox >/dev/null 2>&1; then
+    if pgrep -x openbox >/dev/null 2>&1 && pgrep -f "joys-shell.py" >/dev/null 2>&1; then
         break
     fi
     sleep 5
@@ -15,7 +15,7 @@ done
 diagnose() {
     echo "=== JOYS DESKTOP DIAG ==="
     echo "--- session-prozesse ---"
-    ps aux | grep -E "Xorg|openbox|pcmanfm|joys-shell|joys-settings|xinit|startx|joys-session" | grep -v grep
+    ps aux | grep -E "Xorg|openbox|pcmanfm|joys-shell|joys-welcome|joys-store|joys-settings|joys-recovery|xinit|startx|joys-session" | grep -v grep
     echo "--- netzwerk ---"
     ip -4 addr show 2>/dev/null | grep -E "inet |state" | head -6 || echo "(kein ip)"
     echo "--- netzwerk-test ---"
