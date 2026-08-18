@@ -76,7 +76,8 @@ check() { # check <ok?0/1> <text>
 # Boot + Desktop: adaptiv warten, bis der Screenshot bunte Pixel zeigt
 # (TCG in CI ist deutlich langsamer als lokal – deshalb keine feste Zeit).
 screenshot_ok=0
-for i in $(seq 1 72); do
+# Bis zu 20 min warten (CI-TCG-QEMU ist deutlich langsamer als lokal).
+for i in $(seq 1 120); do
     sleep 10
     if [ -S "$MON" ]; then
         echo "screendump $SCREEN" | socat - "UNIX-CONNECT:$MON" >/dev/null 2>&1 || true
