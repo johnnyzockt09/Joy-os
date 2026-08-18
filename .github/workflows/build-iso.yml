@@ -86,4 +86,12 @@ jobs:
           files: |
             dist/Joys-*-x86_64.iso
             dist/SHA256SUMS
-          generate_release_notes: true
+          body: |
+            ## Joys OS ${{ github.ref_name }}
+
+            Bootfähiges Live-System mit modernem Desktop (Joys Shell),
+            Windows-Kompatibilität via joys-win (ohne Wine) und Installer.
+
+            **Downloads**
+            - `Joys-*-x86_64.iso` – Live-ISO
+            - `SHA256SUMS` – Prüfsummen
