@@ -193,12 +193,11 @@ cp "$TARGET/usr/share/mime/packages/application-x-ms-dos-executable.xml" \
     "$TARGET/root/.local/share/mime/packages/"
 
 # lxde-file-manager / pcmanfm assoziiert Anwendungen über defaults.list.
+mkdir -p "$TARGET/root/.config"
 cat > "$TARGET/root/.config/mimeapps.list" <<'EOF'
 [Default Applications]
 application/vnd.microsoft.portable-executable=joys-exe.desktop
 EOF
-mkdir -p "$TARGET/root/.config"
-cp "$TARGET/root/.config/mimeapps.list" "$TARGET/root/.config/mimeapps.list" 2>/dev/null || true
 
 # --- Openbox-Konfiguration (Startmenü, Tasten) ---
 mkdir -p "$TARGET/root/.config/openbox"
