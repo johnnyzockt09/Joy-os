@@ -10,6 +10,8 @@ jobs:
   build-iso:
     name: Build Joys ISO
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
