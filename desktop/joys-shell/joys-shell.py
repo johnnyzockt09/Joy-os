@@ -9,7 +9,6 @@ import sys
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Gdk, GLib, Pango
-
 PANEL_HEIGHT = 54
 BG = "#1b1b2f"
 FG = "#e8e8f2"
@@ -200,6 +199,10 @@ class Panel(Gtk.Window):
             center.pack_start(b, False, False, 0)
         bar.pack_start(center, False, False, 0)
 
+        # Laufende Fenster (EWMH) – Mitte der Taskbar.
+        self.wins = Gtk.Box(spacing=4)
+        bar.pack_start(self.wins, False, False, 0)
+
         bar.pack_start(Gtk.Label(), True, True, 0)
 
         self.clock = Gtk.Label(label="")
@@ -219,6 +222,53 @@ class Panel(Gtk.Window):
         self._sysbtn = sysb
         self.connect("destroy", Gtk.main_quit)
         self.show_all()
+        # Fenster-Switcher: offene Fenster periodisch aktualisieren.
+        GLib.timeout_add_seconds(2, self.update_windows)
+
+    def update_windows(self):
+        # Offene Fenster via EWMH (_NET_CLIENT_LIST) ermitteln.
+        try:
+            out = subprocess.run(
+                ["xprop", "-root", "_NET_CLIENT_LIST"],
+                capture_output=True, text=True, timeout=3).stdout
+        except Exception:
+            return True
+        win_ids = []
+        if "_NET_CLIENT_LIST(WINDOW):" in out:
+            rest = out.split("window id #", 1)[-1]
+            for part in rest.split(","):
+                ids = part.split()
+                win_ids.extend(w for w in ids if w.startswith("0x"))
+        # Aktuelle Buttons entfernen (nur bei Änderung, sonst einfach neu).
+        for child in self.wins.get_children():
+            self.wins.remove(child)
+        for wid in win_ids[:10]:
+            name = self._window_name(wid)
+            b = Gtk.Button(label=name[:14])
+            b.get_style_context().add_class("panel-button")
+            b.set_tooltip_text(name)
+            b.connect("clicked", lambda *_, w=wid: self._focus(w))
+            self.wins.pack_start(b, False, False, 0)
+        self.wins.show_all()
+        return True
+
+    def _window_name(self, wid):
+        try:
+            out = subprocess.run(
+                ["xprop", "-id", wid, "_NET_WM_NAME"],
+                capture_output=True, text=True, timeout=2).stdout
+            if '"' in out:
+                return out.split('"', 1)[1].rsplit('"', 1)[0]
+        except Exception:
+            pass
+        return "Fenster"
+
+    def _focus(self, wid):
+        try:
+            subprocess.run(["xdotool", "windowactivate", wid],
+                           capture_output=True, timeout=2)
+        except Exception:
+            pass
 
     def update_clock(self):
         now = __import__("datetime").datetime.now()

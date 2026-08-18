@@ -62,6 +62,8 @@ chroot "$TARGET" /bin/bash -c '
         picom \
         plymouth \
         plymouth-theme-script \
+        x11-utils \
+        xdotool \
     || true
     apt-get clean
     rm -f /etc/resolv.conf
