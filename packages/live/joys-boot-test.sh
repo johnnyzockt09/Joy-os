@@ -25,7 +25,7 @@ echo "--- joys-win run gditest.exe (GDI32) ---"
 echo "--- joys-win run networktest.exe (ws2_32) ---"
 /usr/bin/joys-win run /root/networktest.exe
 echo "--- joys-win run audiotest.exe (winmm) ---"
-/usr/bin/joys-win run /root/audiotest.exe 2>/dev/null | grep waveOut || echo "(kein waveOut-Output)"
+timeout 15 /usr/bin/joys-win run /root/audiotest.exe 2>/dev/null | grep waveOut || echo "(kein waveOut-Output, Audio-Device fehlt)"
 echo "--- desktop-check (unabhaengig vom 9p-Service) ---"
 for i in $(seq 1 90); do
     if pgrep -x openbox >/dev/null 2>&1 && pgrep -f "joys-shell.py" >/dev/null 2>&1; then

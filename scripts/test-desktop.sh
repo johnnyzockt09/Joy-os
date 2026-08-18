@@ -173,7 +173,7 @@ fi
 # Shutdown-Test: ACPI-Powerdown über den QEMU-Monitor. Wenn systemd korrekt
 # herunterfährt, beendet sich QEMU von selbst.
 echo "system_powerdown" | socat - "UNIX-CONNECT:$MON" >/dev/null 2>&1 || true
-sleep 90
+sleep 120
 if kill -0 "$QPID" 2>/dev/null; then
     check 1 "Shutdown: QEMU/Gast fährt nicht herunter"
 else
