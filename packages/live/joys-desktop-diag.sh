@@ -17,6 +17,16 @@ diagnose() {
     echo "=== JOYS DESKTOP DIAG ==="
     echo "--- session-prozesse ---"
     ps aux | grep -E "Xorg|openbox|pcmanfm|joys-shell|joys-welcome|joys-store|joys-settings|joys-recovery|xinit|startx|joys-session" | grep -v grep
+    echo "--- SESSION-DEBUG (tty1-startx) ---"
+    ps aux | grep -E "agetty|login -f|tty1" | grep -v grep || echo "(kein tty1-agetty-login)"
+    ls -la /root/.xinitrc /root/.profile 2>&1
+    cat /root/.xinitrc 2>&1
+    echo "DISPLAY=$DISPLAY XAUTHORITY=$XAUTHORITY"
+    if command -v Xorg >/dev/null 2>&1; then
+        pgrep -a Xorg || echo "kein Xorg-Prozess"
+    else
+        echo "Xorg-Binary fehlt"
+    fi
     echo "--- netzwerk ---"
     ip -4 addr show 2>/dev/null | grep -E "inet |state" | head -6 || echo "(kein ip)"
     echo "--- netzwerk-test ---"

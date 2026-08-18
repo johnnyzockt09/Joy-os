@@ -6,6 +6,10 @@
 #   pcmanfm       -> Dateimanager + Desktop-Icons (Wallpaper)
 #   picom         -> Kompositor (Transparenz/Schatten), falls installiert
 
+# Robust: DISPLAY/XAUTHORITY explizit setzen, falls startx/es nicht tut.
+[ -n "$DISPLAY" ] || export DISPLAY=:0
+[ -n "$XAUTHORITY" ] || export XAUTHORITY=/root/.Xauthority
+
 # Modernes Joys-Wallpaper setzen (falls vorhanden).
 if command -v feh >/dev/null 2>&1 && [ -f /usr/share/backgrounds/joys-wallpaper.png ]; then
     feh --bg-fill /usr/share/backgrounds/joys-wallpaper.png &
@@ -19,6 +23,9 @@ if command -v picom >/dev/null 2>&1 && [ -f /etc/xdg/picom-joys.conf ]; then
 fi
 
 python3 /usr/local/bin/joys-shell.py &
+# Protokollieren, falls joys-shell crasht (wichtig für CI-Debug).
+sleep 8
+pgrep -f "joys-shell.py" >/dev/null 2>&1 || echo "[joys-session] joys-shell.py laeuft nicht!"
 
 # Im Live-Modus (ISO) das professionelle Welcome-/Install-Menü zeigen.
 # Nach einer Installation existiert /run/live/medium nicht mehr.
