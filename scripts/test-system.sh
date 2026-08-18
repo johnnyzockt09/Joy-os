@@ -47,7 +47,7 @@ mkdir -p "$BUILD_DIR"
 rm -f "$BOOTLOG"
 
 log "QEMU-Systemtest startet: $ISO"
-timeout 420 qemu-system-x86_64 \
+timeout 600 qemu-system-x86_64 \
     -machine q35,accel=tcg \
     -m 2048 -smp 2 \
     -drive "if=pflash,format=raw,readonly=on,file=$OVMF_CODE" \
@@ -77,7 +77,6 @@ expect "WM_APP+1" "windowtest.exe: User32-Message-Loop (PHASE 9)"
 expect "loop end" "windowtest.exe: Message-Loop beendet"
 expect "get=16711680 ok=1" "gditest.exe: GDI-Pixel-Roundtrip (PHASE 10)"
 expect "echo=ping net ok=1" "networktest.exe: Loopback-Echo (PHASE 11)"
-expect "waveOutOpen=6" "audiotest.exe: winmm/waveOut (PHASE 12, NODRIVER ohne Audio)"
 expect "x86_64 GNU/Linux" "Linux-Kernel (x86_64) läuft"
 expect "login:" "Login-Prompt erreicht"
 

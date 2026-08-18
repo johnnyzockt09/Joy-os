@@ -21,6 +21,8 @@ diagnose() {
     ip -4 addr show 2>/dev/null | grep -E "inet |state" | head -6 || echo "(kein ip)"
     echo "--- netzwerk-test ---"
     (ip route get 1.1.1.1 2>/dev/null | head -1) || echo "(kein Netz)"
+    echo "--- audio-test (winmm/waveOut, NODRIVER ohne Device) ---"
+    timeout 15 /usr/bin/joys-win run /root/audiotest.exe 2>/dev/null | grep waveOut || echo "(kein waveOut-Output)"
     echo "--- PERFORMANCE ---"
     echo "userspace_ms: $(systemctl show --property=UserspaceTimestampUSec --value 2>/dev/null || echo '?')"
     echo "uptime: $(uptime -p 2>/dev/null || echo '?')"

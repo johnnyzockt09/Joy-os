@@ -116,10 +116,6 @@ if [ -f "$DIAG" ]; then
 elif grep -aq "JOYS DESKTOP DIAG ENDE" "$BOOTLOG"; then
     grep -a -A200 "JOYS DESKTOP DIAG" "$BOOTLOG" | head -60 > "$DIAG" || true
     check 0 "Gast-Diagnose (Serienkonsole) vorhanden"
-elif grep -aq "DESKTOP_CHECK: joys-shell laeuft" "$BOOTLOG"; then
-    # Unabhängiger Desktop-Beweis aus dem Boot-Selbsttest.
-    check 0 "Desktop-Selbsttest (Bootlog) vorhanden"
-    { echo "openbox"; echo "joys-shell"; echo "pcmanfm"; } > "$DIAG"
 else
     check 1 "Gast-Diagnose fehlt (Desktop-Service nicht gelaufen)"
 fi
@@ -131,6 +127,7 @@ if [ -f "$DIAG" ]; then
     check "$(grep -aq 'pcmanfm' "$DIAG"; echo $?)" "pcmanfm (Dateimanager/Desktop) läuft"
     check "$(grep -aq 'joys-welcome' "$DIAG"; echo $?)" "joys-welcome (Live-Menü) bereit"
     check "$(grep -aq 'inet ' "$DIAG"; echo $?)" "Netzwerk (DHCP-IP) läuft"
+    check "$(grep -aq 'waveOutOpen=6' "$DIAG"; echo $?)" "audiotest (winmm, NODRIVER ohne Audio)"
 fi
 
 # Screenshot-Analyse (muss bunte Pixel enthalten).

@@ -24,17 +24,5 @@ echo "--- joys-win run gditest.exe (GDI32) ---"
 /usr/bin/joys-win run /root/gditest.exe
 echo "--- joys-win run networktest.exe (ws2_32) ---"
 /usr/bin/joys-win run /root/networktest.exe
-echo "--- joys-win run audiotest.exe (winmm) ---"
-timeout 15 /usr/bin/joys-win run /root/audiotest.exe 2>/dev/null | grep waveOut || echo "(kein waveOut-Output, Audio-Device fehlt)"
-echo "--- desktop-check (unabhaengig vom 9p-Service) ---"
-for i in $(seq 1 90); do
-    if pgrep -x openbox >/dev/null 2>&1 && pgrep -f "joys-shell.py" >/dev/null 2>&1; then
-        break
-    fi
-    sleep 5
-done
-if pgrep -x openbox >/dev/null 2>&1; then echo "DESKTOP_CHECK: openbox laeuft"; else echo "DESKTOP_CHECK: openbox fehlt"; fi
-if pgrep -f "joys-shell.py" >/dev/null 2>&1; then echo "DESKTOP_CHECK: joys-shell laeuft"; else echo "DESKTOP_CHECK: joys-shell fehlt"; fi
-if pgrep -x pcmanfm >/dev/null 2>&1; then echo "DESKTOP_CHECK: pcmanfm laeuft"; else echo "DESKTOP_CHECK: pcmanfm fehlt"; fi
 echo "--- ende ---"
 echo "=== JOYS BOOT TEST ENDE ==="
