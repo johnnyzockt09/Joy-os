@@ -73,8 +73,8 @@ check() { # check <ok?0/1> <text>
     if [ "$1" -eq 0 ]; then ok "$2"; else warn "TEST FEHLGESCHLAGEN: $2"; FAIL=1; fi
 }
 
-# Boot + Desktop: ~5 min unter TCG einplanen.
-sleep 330
+# Boot + Desktop: ~6-7 min unter TCG einplanen (Diag-Service startet nach 150s).
+sleep 400
 
 # Screenshot über QEMU-Monitor.
 if [ -S "$MON" ]; then

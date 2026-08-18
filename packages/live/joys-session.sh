@@ -4,9 +4,7 @@
 #   openbox       -> Fenstermanager (leicht)
 #   joys-shell    -> moderne, Windows-11-artige Taskbar + Startmenü
 #   pcmanfm       -> Dateimanager + Desktop-Icons (Wallpaper)
-#   picom         -> Kompositor (Transparenz/Schatten, falls installiert)
-
-set -e
+#   picom         -> Kompositor (Transparenz/Schatten), falls installiert
 
 # Modernes Joys-Wallpaper setzen (falls vorhanden).
 if command -v feh >/dev/null 2>&1 && [ -f /usr/share/backgrounds/joys-wallpaper.png ]; then
@@ -15,9 +13,9 @@ fi
 
 openbox &
 
-# Kompositor (Transparenz/Schatten) – optional, falls picom installiert.
-if command -v picom >/dev/null 2>&1; then
-    picom --experimental-backends --vsync -b 2>/dev/null || true
+# Kompositor (Fade-Animationen/Schatten wie Win11) – falls picom installiert.
+if command -v picom >/dev/null 2>&1 && [ -f /etc/xdg/picom-joys.conf ]; then
+    picom --config /etc/xdg/picom-joys.conf -b 2>/dev/null || true
 fi
 
 python3 /usr/local/bin/joys-shell.py &

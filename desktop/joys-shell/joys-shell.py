@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # Joys Shell – moderne, Windows-11-artige Desktop-Leiste (GTK3).
-# Zentrierte Taskbar, Startmenü mit Suche + App-Grid, Uhr, Systemmenü.
+# Zentrierte Taskbar, Startmenü mit Suche + App-Grid (Slide-Animation),
+# Uhr, Systemmenü – dunkles Theme mit Hover-Transitions.
 import gi
 import os
 import subprocess
@@ -9,7 +10,7 @@ import sys
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Gdk, GLib, Pango
 
-PANEL_HEIGHT = 52
+PANEL_HEIGHT = 54
 BG = "#1b1b2f"
 FG = "#e8e8f2"
 ACCENT = "#3d7eff"
@@ -20,6 +21,8 @@ APPS = [
     ("Einstellungen", "preferences-system", [sys.executable, "/usr/local/bin/joys-settings.py"]),
     ("joys-core",     "utilities-system-monitor", ["lxterminal", "-e", "/usr/bin/joys-core"]),
     ("joys-win",      "application-x-ms-dos-executable", ["lxterminal", "-e", "/usr/bin/joys-win"]),
+    ("joys-update",   "software-update-available", ["lxterminal", "-e", "/usr/bin/joys-update"]),
+    ("Joys Installer","drive-harddisk", [sys.executable, "/usr/local/bin/joys-installer.py"]),
     ("Texteditor",    "accessories-text-editor", ["lxterminal", "-e", "/bin/nano"]),
 ]
 
@@ -28,31 +31,34 @@ window.panel {{ background-color: {BG}; }}
 .panel-button {{
   background: transparent; color: {FG};
   font-size: 13px; border: none; border-radius: 8px;
-  padding: 6px 14px;
+  padding: 6px 14px; transition: 150ms ease;
 }}
 .panel-button:hover {{ background-color: rgba(255,255,255,0.08); }}
-.panel-button:active {{ background-color: rgba(255,255,255,0.15); }}
+.panel-button:active {{ background-color: rgba(255,255,255,0.16);
+                       background-image: none; }}
 .panel-clock {{ color: {FG}; font-size: 13px; padding: 0 10px; }}
 .start-menu {{
-  background-color: rgba(27,27,47,0.96); color: {FG};
-  border-radius: 14px; border: 1px solid rgba(255,255,255,0.10);
+  background-color: rgba(24,24,42,0.97); color: {FG};
+  border-radius: 16px; border: 1px solid rgba(255,255,255,0.10);
 }}
 .start-search {{
   background-color: rgba(255,255,255,0.07); color: {FG};
   border-radius: 8px; border: none; padding: 8px 12px; font-size: 13px;
+  transition: 150ms ease;
 }}
 .start-search:focus {{ border: 1px solid {ACCENT}; }}
 .app-card {{
-  background: transparent; color: {FG}; border-radius: 10px;
-  font-size: 12px; padding: 10px 6px;
+  background: transparent; color: {FG}; border-radius: 12px;
+  font-size: 12px; padding: 12px 6px; transition: 150ms ease;
 }}
 .app-card:hover {{ background-color: rgba(255,255,255,0.10); }}
+.app-card:active {{ background-color: rgba(61,126,255,0.25); }}
 .power-button {{
   background: transparent; color: {FG}; border-radius: 8px;
-  font-size: 13px; padding: 8px 12px;
+  font-size: 13px; padding: 8px 12px; transition: 150ms ease;
 }}
 .power-button:hover {{ background-color: rgba(255,255,255,0.10); }}
-.start-title {{ color: {FG}; font-size: 15px; font-weight: bold; }}
+.start-title {{ color: {FG}; font-size: 16px; font-weight: bold; }}
 """.strip()
 
 
@@ -67,16 +73,19 @@ class StartMenu(Gtk.Window):
     def __init__(self):
         super().__init__(type=Gtk.WindowType.POPUP)
         self.set_decorated(False)
-        self.set_default_size(560, 480)
+        self.set_default_size(580, 500)
         self.get_style_context().add_class("start-menu")
-        self.set_position(Gtk.WindowPosition.NONE)
 
+        self.revealer = Gtk.Revealer()
+        self.revealer.set_transition_type(Gtk.RevealerTransitionType.SLIDE_DOWN)
+        self.revealer.set_transition_duration(220)
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
         box.set_margin_top(20)
         box.set_margin_bottom(20)
         box.set_margin_left(20)
         box.set_margin_right(20)
-        self.add(box)
+        self.revealer.add(box)
+        self.add(self.revealer)
 
         title = Gtk.Label(label="Joys")
         title.get_style_context().add_class("start-title")
@@ -95,6 +104,8 @@ class StartMenu(Gtk.Window):
         self.grid.set_selection_mode(Gtk.SelectionMode.NONE)
         self.grid.set_max_children_per_line(4)
         self.grid.set_homogeneous(True)
+        self.grid.set_row_spacing(4)
+        self.grid.set_column_spacing(4)
         scroller = Gtk.ScrolledWindow()
         scroller.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
         scroller.add(self.grid)
@@ -106,10 +117,10 @@ class StartMenu(Gtk.Window):
         power = Gtk.Box(spacing=6)
         reboot = Gtk.Button(label="Neu starten")
         reboot.get_style_context().add_class("power-button")
-        reboot.connect("clicked", lambda *_: spawn(["systemctl", "reboot"]))
+        reboot.connect("clicked", lambda *_: (self.hide(), spawn(["systemctl", "reboot"])))
         poweroff = Gtk.Button(label="Ausschalten")
         poweroff.get_style_context().add_class("power-button")
-        poweroff.connect("clicked", lambda *_: spawn(["systemctl", "poweroff"]))
+        poweroff.connect("clicked", lambda *_: (self.hide(), spawn(["systemctl", "poweroff"])))
         power.pack_start(reboot, False, False, 0)
         power.pack_start(poweroff, False, False, 0)
         power.pack_start(Gtk.Label(), True, True, 0)
@@ -123,7 +134,7 @@ class StartMenu(Gtk.Window):
         card = Gtk.Button()
         card.get_style_context().add_class("app-card")
         v = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
-        ic = Gtk.Image(icon_name=icon, pixel_size=34)
+        ic = Gtk.Image(icon_name=icon, pixel_size=36)
         v.pack_start(ic, False, False, 0)
         lbl = Gtk.Label(label=name, ellipsize=Pango.EllipsizeMode.END)
         v.pack_start(lbl, False, False, 0)
@@ -141,44 +152,13 @@ class StartMenu(Gtk.Window):
     def on_enter(self, _e):
         for child in self.grid.get_children():
             if child.get_visible():
-                btn = child.get_child()
-                btn.clicked()
+                child.get_child().clicked()
                 return
 
     def show_at(self, x, y):
         self.show_all()
-        w, h = self.get_size()
-        self.move(x, y - h - 8)
-
-
-class SystemMenu(Gtk.Window):
-    def __init__(self, anchor):
-        super().__init__(type=Gtk.WindowType.POPUP)
-        self.set_decorated(False)
-        self.get_style_context().add_class("start-menu")
-        self._anchor = anchor
-        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
-        box.set_margin_top(10)
-        box.set_margin_bottom=10
-        box.set_margin_left=10
-        box.set_margin_right=10
-        self.add(box)
-        for label, cmd in [
-            ("Einstellungen", [sys.executable, "/usr/local/bin/joys-settings.py"]),
-            ("Neu starten", ["systemctl", "reboot"]),
-            ("Ausschalten", ["systemctl", "poweroff"]),
-        ]:
-            b = Gtk.Button(label=label)
-            b.get_style_context().add_class("power-button")
-            b.connect("clicked", lambda *_, c=cmd: (self.hide(), spawn(c)))
-            box.pack_start(b, False, False, 0)
-
-    def show_at_anchor(self):
-        self.show_all()
-        ax, ay = self._anchor.get_window().get_origin()
-        w = self.get_allocated_width() or 200
-        h = self.get_allocated_height() or 140
-        self.move(ax + self._anchor.get_allocated_width() - w, ay - h)
+        self.move(x, y - 508 - 10)
+        self.revealer.set_reveal_child(True)
 
 
 class Panel(Gtk.Window):
@@ -193,9 +173,7 @@ class Panel(Gtk.Window):
         self._sysmenu = None
 
         screen = self.get_screen()
-        sw = screen.get_width()
-        self.set_default_size(sw, PANEL_HEIGHT)
-        self.set_position(Gtk.WindowPosition.NONE)
+        self.set_default_size(screen.get_width(), PANEL_HEIGHT)
         self.move(0, screen.get_height() - PANEL_HEIGHT)
 
         bar = Gtk.Box(spacing=4)
@@ -203,7 +181,6 @@ class Panel(Gtk.Window):
         bar.set_margin_right(8)
         self.add(bar)
 
-        # Start-Button
         start = Gtk.Button(label="Joys")
         start.get_style_context().add_class("panel-button")
         start.connect("clicked", self.toggle_menu)
@@ -211,7 +188,6 @@ class Panel(Gtk.Window):
 
         bar.pack_start(Gtk.Label(), True, True, 0)
 
-        # Zentrierte Launcher
         center = Gtk.Box(spacing=4)
         for name, icon, cmd in APPS[:3]:
             b = Gtk.Button()
@@ -224,14 +200,12 @@ class Panel(Gtk.Window):
 
         bar.pack_start(Gtk.Label(), True, True, 0)
 
-        # Uhr
         self.clock = Gtk.Label(label="")
         self.clock.get_style_context().add_class("panel-clock")
         bar.pack_end(self.clock, False, False, 0)
         self.update_clock()
         GLib.timeout_add_seconds(1, self.update_clock)
 
-        # Systemmenü
         sysb = Gtk.Button()
         sysb.get_style_context().add_class("panel-button")
         sysb.set_image(Gtk.Image(icon_name="system-shutdown-symbolic", pixel_size=18))
@@ -241,7 +215,6 @@ class Panel(Gtk.Window):
 
         self._start = start
         self._sysbtn = sysb
-
         self.connect("destroy", Gtk.main_quit)
         self.show_all()
 
@@ -259,16 +232,41 @@ class Panel(Gtk.Window):
             self._menu = StartMenu()
         self._sysmenu and self._sysmenu.hide()
         x, y = self._start.get_window().get_origin()
-        self._menu.show_at(x, y + self._start.get_allocated_height())
+        self._menu.show_at(x, y)
 
     def toggle_sysmenu(self, _b):
-        if self._sysmenu is not None and self._sysmenu.get_visible():
+        if self._sysmenu is None:
+            self._sysmenu = self._build_sysmenu()
+        if self._sysmenu.get_visible():
             self._sysmenu.hide()
             return
-        if self._sysmenu is None:
-            self._sysmenu = SystemMenu(self._sysbtn)
         self._menu and self._menu.hide()
-        self._sysmenu.show_at_anchor()
+        self._sysmenu.show_all()
+        ax, ay = self._sysbtn.get_window().get_origin()
+        w = self._sysmenu.get_allocated_width() or 200
+        self._sysmenu.move(ax + self._sysbtn.get_allocated_width() - w,
+                           ay - 150)
+
+    def _build_sysmenu(self):
+        m = Gtk.Window(type=Gtk.WindowType.POPUP)
+        m.set_decorated(False)
+        m.get_style_context().add_class("start-menu")
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
+        box.set_margin_top(10)
+        box.set_margin_bottom(10)
+        box.set_margin_left(10)
+        box.set_margin_right(10)
+        m.add(box)
+        for label, cmd in [
+            ("Einstellungen", [sys.executable, "/usr/local/bin/joys-settings.py"]),
+            ("Neu starten", ["systemctl", "reboot"]),
+            ("Ausschalten", ["systemctl", "poweroff"]),
+        ]:
+            b = Gtk.Button(label=label)
+            b.get_style_context().add_class("power-button")
+            b.connect("clicked", lambda *_, c=cmd: (m.hide(), spawn(c)))
+            box.pack_start(b, False, False, 0)
+        return m
 
 
 def main():
@@ -276,7 +274,6 @@ def main():
     css.load_from_data(CSS.encode())
     Gtk.StyleContext.add_provider_for_screen(
         Gdk.Screen.get_default(), css, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
-    Gtk.Settings.get_default().set_property("gtk-theme-name", "Adwaita")
     Gtk.Settings.get_default().set_property("gtk-application-prefer-dark-theme", True)
     Panel()
     Gtk.main()

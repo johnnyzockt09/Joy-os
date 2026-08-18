@@ -100,6 +100,12 @@ cat > "$TARGET/etc/inputrc" <<'EOF'
 set enable-bracketed-paste off
 EOF
 
+# --- apport deaktivieren (frisst in QEMU/VM CPU bei Xorg-Crashes) ---
+cat > "$TARGET/etc/default/apport" <<'EOF'
+enabled=0
+EOF
+chroot "$TARGET" systemctl disable apport 2>/dev/null || true
+
 # --- xinitrc -> Joys-Sitzung ---
 install -m 0644 -D "$ROOT_DIR/packages/live/joys.desktop" \
     "$TARGET/usr/share/xsessions/joys.desktop"
@@ -118,6 +124,8 @@ install -m 0755 "$ROOT_DIR/desktop/joys-shell/joys-installer.py" \
     "$TARGET/usr/local/bin/joys-installer.py"
 install -m 0755 "$ROOT_DIR/scripts/joys-install.sh" \
     "$TARGET/usr/local/bin/joys-install.sh"
+install -m 0644 "$ROOT_DIR/packages/live/picom.conf" \
+    "$TARGET/etc/xdg/picom-joys.conf"
 
 # Modernes Wallpaper erzeugen (in der chroot-Umgebung via imagemagick).
 install -m 0755 "$ROOT_DIR/packages/live/joys-wallpaper.sh" \
