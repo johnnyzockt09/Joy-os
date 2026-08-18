@@ -14,6 +14,7 @@ pub mod hardware;
 pub mod network;
 pub mod processes;
 pub mod system;
+pub mod update;
 pub mod user;
 
 pub const JOYS_VERSION: &str = env!("CARGO_PKG_VERSION");
