@@ -141,6 +141,14 @@ if [ "$DIAG_OK" -eq 1 ]; then
     check "$(grep -aq 'joys-welcome' "$DIAG"; echo $?)" "joys-welcome (Live-Menü) bereit"
     check "$(grep -aq 'inet ' "$DIAG"; echo $?)" "Netzwerk (DHCP-IP) läuft"
     check "$(grep -aq 'waveOutOpen=6' "$DIAG"; echo $?)" "audiotest (winmm, NODRIVER ohne Audio)"
+    # Diagnose-Debug in den CI-Log ausgeben (falls vorhanden).
+    if grep -aq "SESSION-DEBUG" "$DIAG"; then
+        echo "----- SESSION-DEBUG (aus Gast-Diagnose) -----"
+        sed -n '/SESSION-DEBUG/,/netzwerk ---/p' "$DIAG" | head -14
+        echo "--------------------------------------------"
+    fi
+else
+    echo "WARN: keine Gast-Diagnose für Session-Debug verfügbar"
 fi
 
 # Screenshot-Analyse (muss bunte Pixel enthalten).
